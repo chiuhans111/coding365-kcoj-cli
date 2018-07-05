@@ -1,0 +1,19 @@
+{
+  "name": "coding365",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.16.0",
+    "jsdom": "^11.11.0",
+    "request": "^2.87.0"
+  },
+  "bin": {
+    "kcoj": "./app.js"
+  }
+}

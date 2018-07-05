@@ -1,0 +1,13 @@
+
+exports.user = {
+    name: 'username',
+    passwd: 'password'
+}
+
+// 1: C/C++
+// 2: Csharp
+// 3: JAVA
+// 4: Python
+exports.courseId = 4
+
+// rename this file: 'private.js'

@@ -3,6 +3,9 @@
 const bot = require('./bot/bot')
 var program = require('commander')
 var process = require('process')
+var command = require('./command')
+
+
 var path = require('path')
 program.version('0.8.7')
     .option('-w, --hw [id]', 'set homework id')
@@ -14,24 +17,23 @@ program.version('0.8.7')
     .option('-d, --del', 'delete homework')
     .parse(process.argv)
 
+async function main() {
 
-if (program.hw)
-    bot.login().then(_ => {
+    if (program.hw) {
+
+        console.log(await bot.login())
         if (program.read)
-            bot.homework_show(program.hw)
-                .then(x => console.log(x))
+            console.log(await bot.homework_show(program.hw))
         if (program.del)
-            bot.homework_del(program.hw)
-                .then(x => console.log(x))
+            console.log(await bot.homework_del(program.hw))
         if (program.push)
-            bot.homework_up(program.hw, path.resolve(program.push), program.desc)
-                .then(x => console.log(x))
+            console.log(await bot.homework_up(program.hw, path.resolve(program.push), program.desc))
         if (program.result)
-            bot.homework_result(program.hw, program.user)
-                .then(x => console.log(x))
-
-    })
-else console.log('you need to specifie homework id, see --help')
+            console.log(await bot.homework_result(program.hw, program.user))
+    }
+    else command();
+}
+main();
 /*
 bot.login()
     .then(_ => console.log('login success'))
@@ -39,5 +41,7 @@ bot.login()
     .then(x => console.log(x))
     .then(_ => bot.homework_del('034'))
     .then(_ => bot.homework_up('034', 'C:/Users/Hans/Documents/GitHub/coding365/python/34.py', 'yeeee'))
-
     */
+
+
+

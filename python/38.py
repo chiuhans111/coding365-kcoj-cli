@@ -4,9 +4,9 @@ n = 2
 while True:
     l = input().split(',')
     data.append(l)
-    n=len(l)
-    if len(data)==n*2:
-         break
+    n = len(l)
+    if len(data) == n*2:
+        break
 
 
 data1 = data[0:n]
@@ -24,10 +24,16 @@ students = sorted(data2[0])
 avaTeacher = teachers.copy()
 
 for i in range(n):
+    student = students[i]
+
     def rank(teacher):
         ti = teachers.index(teacher)
-        return data2[ti].index(student)*n + data1[i].index(teacher)
 
-    student = students[i]
+        s1 = data2[ti].index(student)
+        s2 = data1[i].index(teacher)
+        # print(teacher, student, s1, s2)
+        return s1*n+s2
+    
+
     avaTeacher.sort(key=rank)
-    print('{0}->{1}'.format(student, avaTeacher.pop()))
+    print('{0}->{1}'.format(student, avaTeacher.pop(0)))

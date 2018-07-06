@@ -11,15 +11,20 @@ const config2 = require('./config/private')
 
 var cookie = null
 
-exports.login = function () {
+exports.login = function (name, passwd, rdoCourse) {
+    if (name == null) name = config2.user.name
+    if (passwd == null) passwd = config2.user.passwd
+    if (rdoCourse == null) rdoCourse = config2.courseId
     return new Promise((done, error) => request.post(config1.Url.login, {
-        form: {
-            name: config2.user.name,
-            passwd: config2.user.passwd,
-            rdoCourse: config2.courseId
-        },
+        form: { name, passwd, rdoCourse },
         jar: j
-    }, done))
+    }, done)).then(_ => new Promise((done, err) => request.get(config1.Url.welcome, {
+        jar: j
+    }, function (err, res, body) {
+        var document = (new jsdom.JSDOM(body)).window.document
+        var content = document.body.textContent
+        done(content)
+    })))
 }
 
 exports.homework_show = function (hwId) {
@@ -30,8 +35,9 @@ exports.homework_show = function (hwId) {
         var document = (new jsdom.JSDOM(body)).window.document
         var content = [...document.body.childNodes]
             .filter(x => x.nodeType == x.TEXT_NODE)
-            .map(x => "  " + x.nodeValue.trim()).join('\n')
-        done(content)
+            .map(x => x.nodeValue.trim())
+        fs.writeFile('./problem.txt', content.join('\n'))
+        done(content.join('\n'))
     }))
 }
 

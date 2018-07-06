@@ -1,0 +1,8 @@
+A,B,C,D
+A,C,B,D
+D,B,C,A
+B,C,A,D
+W,X,Y,Z
+X,W,Y,Z
+Y,Z,W,X
+X,W,Z,Y

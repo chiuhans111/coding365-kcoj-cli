@@ -11,6 +11,7 @@
   "dependencies": {
     "commander": "^2.16.0",
     "jsdom": "^11.11.0",
+    "read": "^1.0.7",
     "request": "^2.87.0"
   },
   "bin": {

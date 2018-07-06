@@ -40,12 +40,12 @@ this will create a file `012.py` in `/python` folder,
 with some extra information commented in the file.
 ### Test your homework locally
 ```
-kcoj -i `FileName.py` -t
+kcoj -i FileName.py -t
 ```
-`FileName` is better to be your homework ID, ex:`012.py`
+`FileName` is better to be your homework ID, ex:`123.py`
 or you should put homework id in Python file:
 ``` python
-# HWID: `HomeworkId`
+# HWID: 123
 ```
 result: 
 - AC : all correct

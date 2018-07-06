@@ -10,6 +10,7 @@ var fs = require('fs')
 
 var path = require('path')
 program.version('0.8.7')
+    .name('kcoj')
     .option('')
     .option('-w, --hw [id]', 'set homework id')
     .option('-i, --file [filename]', 'main file')

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^2.4.1",
     "commander": "^2.16.0",
     "jsdom": "^11.11.0",
     "read": "^1.0.7",

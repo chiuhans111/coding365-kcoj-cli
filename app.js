@@ -4,6 +4,8 @@ const bot = require('./bot/bot')
 var program = require('commander')
 var process = require('process')
 var command = require('./command')
+var runner = require('./bot/runner')
+var parser = require('./bot/parser')
 
 
 var path = require('path')
@@ -15,21 +17,23 @@ program.version('0.8.7')
     .option('-p, --push [filepath]', 'upload homework')
     .option('--desc [description]', 'add description')
     .option('-d, --del', 'delete homework')
+    .option('-t, --test [filepath]', 'test homework')
     .parse(process.argv)
 
 async function main() {
 
     if (program.hw) {
-
-        console.log(await bot.login())
         if (program.read)
             console.log(await bot.homework_show(program.hw))
+        if (program.test)
+            runner(path.resolve(program.test), parser(program.hw, await bot.homework_show(program.hw)))
         if (program.del)
             console.log(await bot.homework_del(program.hw))
         if (program.push)
             console.log(await bot.homework_up(program.hw, path.resolve(program.push), program.desc))
         if (program.result)
             console.log(await bot.homework_result(program.hw, program.user))
+
     }
     else command();
 }

@@ -36,7 +36,7 @@ exports.homework_show = function (hwId) {
         var content = [...document.body.childNodes]
             .filter(x => x.nodeType == x.TEXT_NODE)
             .map(x => x.nodeValue.trim())
-        fs.writeFile('./problem.txt', content.join('\n'))
+        fs.writeFileSync('./problem.txt', content.join('\n'))
         done(content.join('\n'))
     }))
 }

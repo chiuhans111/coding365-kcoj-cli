@@ -18,8 +18,8 @@ data2 = data[n:]
 teachers = sorted(data1[0])
 students = sorted(data2[0])
 
-# print(teachers)
-# print(students)
+print(teachers)
+print(students)
 
 avaTeacher = teachers.copy()
 
@@ -31,7 +31,7 @@ for i in range(n):
 
         s1 = data2[ti].index(student)
         s2 = data1[i].index(teacher)
-        # print(teacher, student, s1, s2)
+        print(teacher, student, s1, s2)
         return s1*n+s2
     
 

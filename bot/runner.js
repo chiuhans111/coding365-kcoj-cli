@@ -54,10 +54,10 @@ module.exports = async function (programPath, problemParsed, detail) {
         else output += chalk.red.bgBlack(' WA ')
         console.log(output)
         if (detail) {
-            console.log("answer:")
-            console.log(x.output)
-            console.log("output:")
+            console.log("correct answer:")
             console.log(x.answer)
+            console.log("your output:")
+            console.log(x.output)
         }
     })
 

@@ -46,6 +46,8 @@ kcoj -i FileName.py -t
 or you should put homework id in Python file:
 ``` python
 # HWID: 123
+name = input()
+print('Hello '+name)
 ```
 result: 
 - AC : all correct

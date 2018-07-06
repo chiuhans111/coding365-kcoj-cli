@@ -61,4 +61,4 @@ typings/
 */config/private.js
 
 # cache
-/cache/*
+*/cache/*

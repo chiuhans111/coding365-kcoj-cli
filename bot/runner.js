@@ -54,7 +54,7 @@ module.exports = async function (programPath, problemParsed, detail) {
         else output += chalk.red.bgBlack(' WA ')
         console.log(output)
         if (detail) {
-            if (x.error.length > 0) {
+            if (!x.timeout && x.error.length > 0) {
                 console.error(x.error)
             }
             console.log("correct answer:")

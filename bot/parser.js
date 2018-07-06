@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 var RE = {
     input: /(^\s*\n)*(-+\s*\n)?(^\s*\n)*^(((範例)|(sample))?\s*((輸入)|(input))\s*((範例)|(sample))?)[:：]?\s*$(\n\s*$)*/gim,
@@ -8,7 +9,7 @@ var RE = {
 
 /**@param {String} str */
 module.exports = function (id, str) {
-    var cachePath = './cache/parsed' + id + '.json'
+    var cachePath = path.resolve(__dirname, './cache/parsed' + id + '.json')
 
     if (fs.existsSync(cachePath)) return JSON.parse(fs.readFileSync(cachePath).toString())
 
@@ -16,7 +17,7 @@ module.exports = function (id, str) {
     str = str.replace(RE.output, '>>OUTPUT<<')
     var result = {
         id,
-        desc: (str.match(/([^]*)>>INPUT<</) || { 1: '無說明' })[1]
+        desc: (str.match(/([^]*?)>>INPUT<</) || { 1: '無說明' })[1]
     }
     var tests = [];
     str.replace(/>>INPUT<<\n([^]+?)\n*>>OUTPUT<<\n([^\n]*(\n[^\n]+)*)/g, function (str, input, output) {

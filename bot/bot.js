@@ -2,6 +2,8 @@ const request = require('request').defaults({ rejectUnauthorized: false })
 const fs = require('fs')
 const jsdom = require('jsdom')
 const path = require('path')
+const chalk = require('chalk')
+
 // require('request').debug = true
 var j = require('request').jar()
 
@@ -34,7 +36,7 @@ exports.login = function (name, passwd, rdoCourse) {
 
 exports.homework_show = async function (hwId) {
 
-    var cachePath = './cache/' + hwId + '.txt'
+    var cachePath = path.resolve(__dirname, './cache/' + hwId + '.txt')
     return new Promise(async function (done, error) {
 
         if (fs.existsSync(cachePath)) done(fs.readFileSync(cachePath).toString())
@@ -57,9 +59,9 @@ exports.homework_show = async function (hwId) {
     })
 }
 
-exports.homework_del = function (title) {
-    return exports.login().then(new Promise(_ => {
-        
+exports.homework_del = async function (title) {
+    await exports.login()
+    return await new Promise(done => {
         request.post(config1.Url.homework.del, {
             qs: { title },
             jar: j
@@ -68,11 +70,13 @@ exports.homework_del = function (title) {
             var content = document.body.textContent
             done(content)
         })
-    }))
+    })
 }
 
-exports.homework_up = function (hwId, filepath, desc = '') {
-    return exports.login().then(new Promise((done, error) => {
+exports.homework_up = async function (hwId, filepath, desc = '') {
+
+    await exports.login()
+    return await new Promise((done, error) => {
         request.get(config1.Url.homework.upid, {
             qs: { hwId },
             jar: j,
@@ -84,23 +88,36 @@ exports.homework_up = function (hwId, filepath, desc = '') {
                 var content = document.body.textContent
                 done(content)
             }).form()
-            form.append('hwFile', fs.createReadStream(filepath))
+            form.append('hwFile', fs.createReadStream(filepath), {
+                contentType: 'text/plain'
+            })
             form.append('FileDesc', desc)
         })
-    }))
+    })
 }
 
 
-exports.homework_result = function (questionID, studentID) {
+exports.homework_result = async function (questionID, studentID) {
     if (studentID == null) studentID = config2.user.name
-    return new Promise((done, error) => request.get(config1.Url.homework.result, {
+    await exports.login()
+
+    return await new Promise((done, error) => request.get(config1.Url.homework.result, {
         qs: { questionID, studentID },
         jar: j
     }, function (err, res, body) {
         var document = (new jsdom.JSDOM(body)).window.document
-        //console.log(body)
-        var content = [...document.querySelectorAll('tr')]
-            .map(x => x.textContent.trim().replace(/[\n\t]+/g, '\t'))
+        // console.log(body)
+        var content = [...document.querySelectorAll('tr')].slice(1)
+            .map(x => {
+                var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
+                var output = chalk.black.bgWhite(' ' + result[0] + ' ')
+
+                if (result[1].match('超過時間')) output += chalk.blue.bgBlack(' TLE (>' + result[1].match(/(\d+)秒/)[1] + 's) ')
+                else if (result[1].match('失敗')) output += chalk.red.bgBlack(' WA ')
+                else output += chalk.black.bgGreen(' AC ')
+
+                return output
+            })
             .join('\n') + '\n progress:\t' + document.querySelector('.progress,.alert').textContent.trim()
         done(content)
     }))

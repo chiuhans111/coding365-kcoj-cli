@@ -1,0 +1,10 @@
+{
+    "id": "038",
+    "desc": "\n105-05.\n\n同學要選老師做專題 (project)，\nN 位學生 (N student)，M 位老師 (M teacher) ，\n配對方式，優先根據學生填寫志願，\n如有相沖突，則考慮老師志願序。\n\n測試案例一：\n學生有4位分別為W、X、Y、Z\n老師有4位分別為A、B、C、D\n學生志願序：\nW：A、B、C、D\nX：A、C、B、D\nY：D、B、C、A\nZ：B、C、A、D\n老師志願序：\nA：W、X、Y、Z\nB：X、W、Y、Z\nC：Y、Z、W、X\nD：X、W、Z、Y\n結果：\nW->A\nX->C\nY->D\nZ->B\n\n\n測試案例二：\n學生志願序：\nW：A、B、C、D\nX：A、C、B、D\nY：D、B、C、A\nZ：B、C、A、D\n\n\n老師志願序：\nA：X、W、Y、Z\nB：X、W、Y、Z\nC：Y、Z、W、X\nD：X、W、Z、Y\n結果：\nW->C\nX->A\nY->D\nZ->B\n\n",
+    "tests": [
+        {
+            "input": "A,B,C,D\nA,C,B,D\nD,B,C,A\nB,C,A,D\nW,X,Y,Z\nX,W,Y,Z\nY,Z,W,X\nX,W,Z,Y\n",
+            "output": "W->A\nX->C\nY->D\nZ->B\n"
+        }
+    ]
+}

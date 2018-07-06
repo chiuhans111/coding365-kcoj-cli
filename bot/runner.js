@@ -48,10 +48,10 @@ module.exports = async function (programPath, problemParsed, detail) {
 
     result.map((x, i) => {
         var output = chalk.black.bgWhite(' test ' + (i + 1) + ' ')
-        if (x.timeout) output += chalk.red.bgBlack(' TIME OUT ')
-        else if (x.error.length > 0) output += chalk.yellow.bgBlack(' ERROR ')
-        else if (x.correct) output += chalk.black.bgGreen(' PASS ')
-        else output += chalk.red.bgBlack(' FAIL ')
+        if (x.timeout) output += chalk.blue.bgBlack(' TLE (>8s) ')
+        else if (x.error.length > 0) output += chalk.yellow.bgBlack(' ERR ')
+        else if (x.correct) output += chalk.black.bgGreen(' AC ')
+        else output += chalk.red.bgBlack(' WA ')
         console.log(output)
         if (detail) {
             console.log("answer:")

@@ -1,0 +1,10 @@
+{
+    "id": "040",
+    "desc": "\n105-07.\n\nbinary tree\n\n\ntypedef struct node_s {\nint data;\nstruct node_s * left;\nstruct node_s * right;\n} node_t;\n\ntypedef struct node_s {\nnode_t * root;\n}\n\ntypedef node_t * nodep_t;\n\n以data大小為依據，左子樹小於等於根，右子樹大於根，建立二元樹。\n//插入資料進二元樹\n(1)void Insert(nodep_t *node, student_t key);\n//中序巡訪印出：左中右\n(2)void Inorder(nodep_t *node);\n\n---------------------\n輸入說明：\n\np function(2)\ni function(1)\n5 欲插入的數字\np\ni\n6\np\ni\n7\np\ni\n3\np\ni\n4\np\ne 結束輸入\n------------------------------\n輸出說明：\n\np (印出):\n(1)沒有tree 印出 null\n(2)第一個插入的數字為 root\n(3)小於、等於 root 為左子樹\n(4)大於 root 為右子樹\n3 4 5 6 7 每個data中間有空白\n\n",
+    "tests": [
+        {
+            "input": "p\ni\n5\np\ni\n6\np\ni\n7\np\ni\n3\np\ni\n4\np\ni\n2\np\ni\n6\np\ne\n",
+            "output": "null\n5\n5 6\n5 6 7\n3 5 6 7\n3 4 5 6 7\n2 3 4 5 6 7\n2 3 4 5 6 6 7\n"
+        }
+    ]
+}

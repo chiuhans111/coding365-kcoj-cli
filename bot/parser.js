@@ -15,7 +15,7 @@ exports.fromProblem = function (id, str) {
 
     str = str.replace(RE.input, '\n>>INPUT<<')
     str = str.replace(RE.output, '>>OUTPUT<<')
-    console.log(str)
+    //console.log(str)
     var result = {
         id,
         desc: (str.match(/([^]*?)>>INPUT<</) || { 1: '無說明' })[1]

@@ -7,6 +7,7 @@ var command = require('./command')
 var runner = require('./bot/runner')
 var parser = require('./bot/parser')
 var fs = require('fs')
+var chalk = require('chalk')
 var path = require('path')
 
 // var cachePath = path.resolve(__dirname, './bot/cache')
@@ -49,10 +50,24 @@ function findHWID(str) {
     return null
 }
 
-async function main() {
-    if (program.file) program.file = program.file
+async function main(forceResetHw = false) {
 
-    if (program.hw == null) {
+    if (program.file == null && program.hw == null) {
+        var folder = path.resolve('./')
+        var files = fs.readdirSync(folder)
+            .filter(x => path.extname(x) == '.py')
+            .map(x => path.resolve(x))
+        for (var file of files) {
+            program.file = file
+            console.log(chalk.bgBlue('\n > ' + path.basename(file) + ' '))
+            var result = await main(true)
+        }
+        console.log('done processing ' + files.length + ' files')
+        return
+    }
+
+
+    if (program.hw == null || forceResetHw) {
         program.hw = findHWID(program.file)
         if (program.init) program.hw = program.init
     }
@@ -63,11 +78,11 @@ async function main() {
         if (program.test) {
             var parsed = parser.fromFile(program.file)
             if (parsed.tests.length == 0) {
-                console.log('no test found in file, downloading online tests...')
+                console.log('  download online data...')
                 var homework = await bot.homework_show(program.hw)
                 parsed = parser.fromProblem(program.hw, homework)
             }
-            runner(program.file, parsed, program.detail)
+            await runner(program.file, parsed, program.detail)
         }
         if (program.del)
             console.log(await bot.homework_del(program.hw))
@@ -93,6 +108,8 @@ async function main() {
 
     }
     //else command();
+
+    return true
 }
 main();
 /*

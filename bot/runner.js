@@ -63,5 +63,6 @@ module.exports = async function (programPath, problemParsed, detail) {
         }
     })
 
+    return true
 
 }

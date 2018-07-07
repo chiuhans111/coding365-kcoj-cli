@@ -8,10 +8,10 @@ var RE = {
 
 
 /**@param {String} str */
-module.exports = function (id, str) {
+exports.fromProblem = function (id, str) {
     var cachePath = path.resolve(__dirname, './cache/parsed' + id + '.json')
 
-    if (fs.existsSync(cachePath)) return JSON.parse(fs.readFileSync(cachePath).toString())
+    // if (fs.existsSync(cachePath)) return JSON.parse(fs.readFileSync(cachePath).toString())
 
     str = str.replace(RE.input, '\n>>INPUT<<')
     str = str.replace(RE.output, '>>OUTPUT<<')
@@ -28,6 +28,24 @@ module.exports = function (id, str) {
     })
     result.tests = tests
 
-    fs.writeFileSync(cachePath, JSON.stringify(result, null, '    '))
+    // fs.writeFileSync(cachePath, JSON.stringify(result, null, '    '))
     return result
+}
+
+exports.fromFile = function (filepath) {
+    var tests = []
+    var str = fs.readFileSync(path.resolve(filepath)).toString()
+    str.replace(/'''([^]+)'''/, function (str2, code) {
+        code.replace(/\r/g, '').replace(/^input:\n?([^]+?)\n*^output:\n?([^\n]*(\n[^\n]+)*)/gm, function (str, input, output) {
+            
+            input = input.replace(/\r/g, '')
+            output = output.replace(/\r/g, '')
+            tests.push({
+                input: input + '\n', output: output + '\n'
+            })
+        })
+    })
+    return {
+        tests
+    }
 }

@@ -50,6 +50,8 @@ function findHWID(str) {
 }
 
 async function main() {
+    if (program.file) program.file = program.file
+
     if (program.hw == null) {
         program.hw = findHWID(program.file)
         if (program.init) program.hw = program.init
@@ -59,21 +61,25 @@ async function main() {
         if (program.read)
             console.log(await bot.homework_show(program.hw))
         if (program.test) {
-            var homework = await bot.homework_show(program.hw)
-            var parsed = parser(program.hw, homework)
-            runner(path.resolve(program.file), parsed, program.detail)
+            var parsed = parser.fromFile(program.file)
+            if (parsed.tests.length == 0) {
+                console.log('no test found in file, downloading online tests...')
+                var homework = await bot.homework_show(program.hw)
+                parsed = parser.fromProblem(program.hw, homework)
+            }
+            runner(program.file, parsed, program.detail)
         }
         if (program.del)
             console.log(await bot.homework_del(program.hw))
         if (program.push) {
             console.log('pushing', program.hw, program.file)
-            console.log(await bot.homework_up(program.hw, path.resolve(program.file), program.desc))
+            console.log(await bot.homework_up(program.hw, program.file, program.desc))
         }
         if (program.result)
             console.log(await bot.homework_result(program.hw, program.user, program.auto))
         if (program.init) {
             var homework = await bot.homework_show(program.hw)
-            var parsed = parser(program.hw, homework)
+            var parsed = parser.fromProblem(program.hw, homework)
             content = `HWID: ${parsed.id}\n${parsed.desc.trim()}\n\n`.split('\n')
                 .map(x => x.trim().length > 0 ? '# ' + x : '').join('\r\n')
                 + "'''" + parsed.tests.map((test, i) => {

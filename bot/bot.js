@@ -39,22 +39,22 @@ exports.homework_show = async function (hwId) {
     var cachePath = path.resolve(__dirname, './cache/' + hwId + '.txt')
     return new Promise(async function (done, error) {
 
-        if (fs.existsSync(cachePath)) done(fs.readFileSync(cachePath).toString())
-        else {
-            await exports.login()
-            request.post(config1.Url.homework.show, {
-                qs: { hwId },
-                jar: j
-            }, function (err, res, body) {
-                var document = (new jsdom.JSDOM(body)).window.document
-                var content = [...document.body.childNodes]
-                    .filter(x => x.nodeType == x.TEXT_NODE)
-                    .map(x => x.nodeValue.trim())
-                done(content.join('\n'))
-            })
-        }
+        // if (fs.existsSync(cachePath)) done(fs.readFileSync(cachePath).toString())
+        // else {
+        await exports.login()
+        request.post(config1.Url.homework.show, {
+            qs: { hwId },
+            jar: j
+        }, function (err, res, body) {
+            var document = (new jsdom.JSDOM(body)).window.document
+            var content = [...document.body.childNodes]
+                .filter(x => x.nodeType == x.TEXT_NODE)
+                .map(x => x.nodeValue.trim())
+            done(content.join('\n'))
+        })
+        // }
     }).then(result => {
-        fs.writeFileSync(cachePath, result)
+        // fs.writeFileSync(cachePath, result)
         return result
     })
 }

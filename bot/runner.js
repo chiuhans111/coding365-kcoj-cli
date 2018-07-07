@@ -11,7 +11,8 @@ module.exports = async function (programPath, problemParsed, detail) {
             var timeout = setTimeout(() => {
                 py.kill()
                 done({
-                    timeout: true
+                    timeout: true,
+                    answer: test.output
                 })
             }, 8000);
 
@@ -27,8 +28,6 @@ module.exports = async function (programPath, problemParsed, detail) {
                 output += data
                 // console.log(data.toString())
             })
-
-
 
             py.on('close', _ => {
                 output = output.replace(/\r/g, '')

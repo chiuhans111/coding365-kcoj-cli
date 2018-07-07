@@ -9,8 +9,8 @@ var parser = require('./bot/parser')
 var fs = require('fs')
 var path = require('path')
 
-var cachePath = path.resolve(__dirname, './bot/cache')
-if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath)
+// var cachePath = path.resolve(__dirname, './bot/cache')
+// if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath)
 
 program.version('0.8.7')
     .name('kcoj')

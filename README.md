@@ -66,5 +66,9 @@ XXXXXXXXX所上傳XXX檔案:
 ```
 ### See the result come from server
 ```
-kcoj -i `FileName.py` -o
+kcoj -i FileName.py -o
+```
+### Really useful command combination: Delete Push Output and Auto wait
+```
+kcoj -i FileName.py -dpoa
 ```

@@ -97,28 +97,44 @@ exports.homework_up = async function (hwId, filepath, desc = '') {
 }
 
 
-exports.homework_result = async function (questionID, studentID) {
+exports.homework_result = async function (questionID, studentID, auto) {
+    if (auto) console.log('please wait...')
     if (studentID == null) studentID = config2.user.name
     await exports.login()
+    var output = ''
+    var refresh = false
+    var retry = 0
+    do {
+        refresh = false
+        output = await new Promise((done, error) => request.get(config1.Url.homework.result, {
+            qs: { questionID, studentID },
+            jar: j
+        }, function (err, res, body) {
+            var document = (new jsdom.JSDOM(body)).window.document
+            // console.log(body)
+            var content = [...document.querySelectorAll('tr')].slice(1)
+                .map(x => {
+                    var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
+                    var output = chalk.black.bgWhite(' ' + result[0] + ' ')
 
-    return await new Promise((done, error) => request.get(config1.Url.homework.result, {
-        qs: { questionID, studentID },
-        jar: j
-    }, function (err, res, body) {
-        var document = (new jsdom.JSDOM(body)).window.document
-        // console.log(body)
-        var content = [...document.querySelectorAll('tr')].slice(1)
-            .map(x => {
-                var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
-                var output = chalk.black.bgWhite(' ' + result[0] + ' ')
+                    if (result[1].match('超過時間')) output += chalk.blue.bgBlack(' TLE (>' + result[1].match(/(\d+)秒/)[1] + 's) ')
+                    else if (result[1].match('失敗')) output += chalk.red.bgBlack(' WA ')
+                    else output += chalk.black.bgGreen(' AC ')
 
-                if (result[1].match('超過時間')) output += chalk.blue.bgBlack(' TLE (>' + result[1].match(/(\d+)秒/)[1] + 's) ')
-                else if (result[1].match('失敗')) output += chalk.red.bgBlack(' WA ')
-                else output += chalk.black.bgGreen(' AC ')
+                    return output
+                })
+                .join('\n') + '\n progress:\t' + document.querySelector('.progress,.alert').textContent.trim()
+            done(content)
+        }))
 
-                return output
-            })
-            .join('\n') + '\n progress:\t' + document.querySelector('.progress,.alert').textContent.trim()
-        done(content)
-    }))
+        if (output.match('未經過任何測試')) retry = 2
+
+        if (auto && retry > 0) {
+            refresh = true
+            await new Promise(pass => setTimeout(pass, 1000))
+            retry--
+        }
+
+    } while (refresh)
+    return output
 }

@@ -21,7 +21,8 @@ program.version('0.8.7')
     .option('-r, --read', 'read homework content')
     .option('')
     .option('-o  --result', 'see result')
-    .option('-u, --user [username]', 'see other user')
+    .option('-a  --auto', 'auto reload')
+    .option('    --user [username]', 'see other user')
     .option('')
     .option('-p, --push', 'upload homework')
     .option('    --desc [description]', 'add description')
@@ -69,7 +70,7 @@ async function main() {
             console.log(await bot.homework_up(program.hw, path.resolve(program.file), program.desc))
         }
         if (program.result)
-            console.log(await bot.homework_result(program.hw, program.user))
+            console.log(await bot.homework_result(program.hw, program.user, program.auto))
         if (program.init) {
             var homework = await bot.homework_show(program.hw)
             var parsed = parser(program.hw, homework)

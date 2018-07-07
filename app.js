@@ -76,9 +76,9 @@ async function main() {
             var parsed = parser(program.hw, homework)
             content = `HWID: ${parsed.id}\n${parsed.desc.trim()}\n\n`.split('\n')
                 .map(x => x.trim().length > 0 ? '# ' + x : '').join('\r\n')
-                + parsed.tests.map((test, i) => {
-                    return `'''\ninput:\n${test.input}\noutput:\n${test.output}\n'''`
-                }).join('\n')
+                + "'''" + parsed.tests.map((test, i) => {
+                    return `\ninput:\n${test.input}\noutput:\n${test.output}\n`
+                }).join('\n') + "'''"
             var file = content
             var filename = path.resolve(program.hw + '.py')
             if (fs.existsSync(filename)) console.log('file already exists')

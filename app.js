@@ -53,7 +53,7 @@ function findHWID(str) {
 
 async function main(forceResetHw = false, prefix = '') {
 
-    if (program.file == null && program.hw == null) {
+    if (program.file == null && program.hw == null && program.init == null) {
         var folder = path.resolve('./')
         var files = fs.readdirSync(folder)
             .filter(x => path.extname(x) == '.py')

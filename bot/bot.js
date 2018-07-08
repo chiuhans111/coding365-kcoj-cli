@@ -42,14 +42,16 @@ exports.homework_all = async function (hwType = null, detail = false, studentId)
     if (studentId == null) studentId = config2.user.name
     return new Promise(async function (done) {
         await exports.login()
+        process.stdout.clearLine()
+        process.stdout.write('  fetching homework list\r')
         request.get(config1.Url.homework.board, {
             qs: hwType ? { hwType } : {},
             jar: j
         }, async function (err, res, body) {
             var document = (new jsdom.JSDOM(body)).window.document
             var lines = [...document.querySelectorAll('tr')].slice(1)
+            var count = 0
             var content = await Promise.all(lines.map(async function (line, id, arr) {
-                process.stdout.write('  processing' + id + '/' + arr.length + '     \r')
                 var [no, type, id, time, _, language, mark] = [...line.querySelectorAll('td')].map(x => x.textContent)
                 var homework = new Homework({
                     no: Number(no), type, id: id.trim(), time: new Date(time), language,
@@ -60,8 +62,12 @@ exports.homework_all = async function (hwType = null, detail = false, studentId)
                     homework.runResult = await exports.homework_result(homework.id, studentId)
                     homework.finished = await exports.homework_success(homework.id)
                 }
+                process.stdout.write('  processed:' + count + '/' + arr.length + '     \r')
+                count++
                 return homework
             }))
+            process.stdout.clearLine()
+
             done(content)
         })
 

@@ -56,7 +56,10 @@ function findHWID(str) {
 async function main(forceResetHw = false, prefix = '') {
 
     if (program.list) {
+        console.log(' downloading... \r')
+
         var all = await bot.homework_all(undefined, program.detail, program.user)
+        console.log(' formatting... \r')
         for (var i of all) console.log(i.toString())
         return
     }

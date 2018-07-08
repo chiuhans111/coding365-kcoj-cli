@@ -54,6 +54,8 @@ function Homework(content) {
             } else {
                 if (!me.uploaded && me.studentId == config2.user.name)
                     output += chalk.red('    --    ')
+                else if (me.uploaded && me.studentId == config2.user.name && me.runResult.nodata())
+                    output += chalk.bgGreen.black(' ') + chalk.red('retry.   ')
                 else output += me.runResult.toString(null, true)
             }
             if (!nodata) {
@@ -68,7 +70,7 @@ function Homework(content) {
             }
 
         } else {
-            if (me.uploaded) output += chalk.black.bgGreen(' ok ')
+            if (me.uploaded) output += chalk.black.bgGreen(' sent ')
             else output += chalk.bgBlack(' -- ')
             if (me.runResult) output += me.runResult.toString(null, true)
             if (me.finished) output += me.finished.length

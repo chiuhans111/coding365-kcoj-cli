@@ -10,6 +10,9 @@ module.exports = function () {
     this.pass = function () {
         return me.tests.every(x => x.correct) && me.tests.length > 0
     }
+    this.nodata = function () {
+        return me.tests.length == 0
+    }
     this.toString = function (detail, onlyProgress = false) {
         var correctCount = 0
 

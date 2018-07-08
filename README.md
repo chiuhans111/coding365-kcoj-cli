@@ -3,14 +3,16 @@ This is a simple _command line interface_ to help you finnish your programming h
 
 so you don't have to worried about using _THE_ `Difficult To Use` website.
 
-### Prerequisites
+## Prerequisites
 * `Node.js` installed ( if you want to build by yourself )
   - `npm install pkg` ( this is use to build binarys )
 * `Python` installed  ( to support local code checks )
-### Installing
-## Using Binary
-
-## Manualy Install and Build
+## Installing
+### Using Binary
+1. download at releases
+2. run in commandline
+3. [Getting Started!](./#Getting_Started)
+### Manualy Install and Build
 1. install node modules
 ```
 cd coding365-kcoj-cli
@@ -30,7 +32,6 @@ exports.key = 'your secret key can be any string you want!'
 node app.js
 npm run build
 ```
-
 ## Getting Started
 ### First Time Login
 ```

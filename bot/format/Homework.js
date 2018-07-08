@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const config = require('../config/config')
+const config = require('../config/config').config
 
 function Homework(content) {
     /**@type {Homework} */

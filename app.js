@@ -24,6 +24,7 @@ program.version('0.8.7')
     .option('-o  --result', 'see result')
     .option('-a  --auto', 'auto reload')
     .option('    --user [username]', 'see other user')
+    .option('    --success', 'see who success')
     .option('')
     .option('-p, --push', 'upload homework')
     .option('    --desc [description]', 'add description')
@@ -50,7 +51,7 @@ function findHWID(str) {
     return null
 }
 
-async function main(forceResetHw = false) {
+async function main(forceResetHw = false, prefix = '') {
 
     if (program.file == null && program.hw == null) {
         var folder = path.resolve('./')
@@ -59,8 +60,7 @@ async function main(forceResetHw = false) {
             .map(x => path.resolve(x))
         for (var file of files) {
             program.file = file
-            console.log(chalk.bgBlue('\n > ' + path.basename(file) + ' '))
-            var result = await main(true)
+            var result = await main(true, chalk.bgBlue(' > ' + path.basename(file) + ' '))
         }
         console.log('done processing ' + files.length + ' files')
         return
@@ -78,20 +78,32 @@ async function main(forceResetHw = false) {
         if (program.test) {
             var parsed = parser.fromFile(program.file)
             if (parsed.tests.length == 0) {
-                console.log('  download online data...')
+
+                process.stdout.write('  download online data...\r')
                 var homework = await bot.homework_show(program.hw)
+                process.stdout.clearLine();
+
                 parsed = parser.fromProblem(program.hw, homework)
             }
-            await runner(program.file, parsed, program.detail)
+            var result = await runner(program.file, parsed)
+            console.log(prefix + result.toString(program.detail, prefix != ''))
         }
+
         if (program.del)
             console.log(await bot.homework_del(program.hw))
+
         if (program.push) {
             console.log('pushing', program.hw, program.file)
             console.log(await bot.homework_up(program.hw, program.file, program.desc))
         }
+
         if (program.result)
-            console.log(await bot.homework_result(program.hw, program.user, program.auto))
+            console.log(prefix + (await bot.homework_result(
+                program.hw, program.user, program.auto)).toString(false, prefix != ''))
+
+        if (program.success)
+            console.log(await bot.homework_success(program.hw))
+
         if (program.init) {
             var homework = await bot.homework_show(program.hw)
             var parsed = parser.fromProblem(program.hw, homework)

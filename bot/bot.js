@@ -3,9 +3,10 @@ const fs = require('fs')
 const jsdom = require('jsdom')
 const path = require('path')
 const chalk = require('chalk')
+const RunResult = require('./format/RunResult')
+const process = require('process')
 
 // require('request').debug = true
-var j = require('request').jar()
 
 
 const config1 = require('./config/public')
@@ -13,8 +14,9 @@ const config2 = require('./config/private')
 
 var cookie = null
 
-var logined = false
 
+var logined = false
+var j = require('request').jar()
 exports.login = function (name, passwd, rdoCourse) {
     if (name == null) name = config2.user.name
     if (passwd == null) passwd = config2.user.passwd
@@ -98,43 +100,71 @@ exports.homework_up = async function (hwId, filepath, desc = '') {
 
 
 exports.homework_result = async function (questionID, studentID, auto) {
-    if (auto) console.log('please wait...')
+    if (auto) process.stdout.write('please wait...\r')
     if (studentID == null) studentID = config2.user.name
     await exports.login()
-    var output = ''
+    var output = null
     var refresh = false
     var retry = 0
     do {
         refresh = false
-        output = await new Promise((done, error) => request.get(config1.Url.homework.result, {
+        output = new RunResult()
+        await new Promise((done, error) => request.get(config1.Url.homework.result, {
             qs: { questionID, studentID },
             jar: j
         }, function (err, res, body) {
+
+            if (body.match('未經過任何測試')) done()
+
             var document = (new jsdom.JSDOM(body)).window.document
             // console.log(body)
             var content = [...document.querySelectorAll('tr')].slice(1)
                 .map(x => {
+                    // console.log(x.textContent)
                     var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
-                    var output = chalk.black.bgWhite(' ' + result[0] + ' ')
-
-                    if (result[1].match('超過時間')) output += chalk.blue.bgBlack(' TLE (>' + result[1].match(/(\d+)秒/)[1] + 's) ')
-                    else if (result[1].match('失敗')) output += chalk.red.bgBlack(' WA ')
-                    else output += chalk.black.bgGreen(' AC ')
-
-                    return output
+                    output.addResult({
+                        id: result[0],
+                        timeout: result[1].match('超過時間') ? '>' + result[1].match(/(\d+)秒/)[1] + 's' : null,
+                        correct: !result[1].match('失敗')
+                    })
                 })
-                .join('\n') + '\n progress:\t' + document.querySelector('.progress,.alert').textContent.trim()
-            done(content)
+
+
+            done()
         }))
 
-        if (output.match('未經過任何測試')) retry = 2
+
+
+        if (output.tests.length == 0) retry = 2
 
         if (auto && retry > 0) {
             refresh = true
-            await new Promise(pass => setTimeout(pass, 1000))
+            var success = await exports.homework_success(questionID)
+            if (success.indexOf(studentID) != -1) {
+                refresh = false
+            }
+            else await new Promise(pass => setTimeout(pass, 1000))
             retry--
         }
 
     } while (refresh)
     return output
 }
+
+
+exports.homework_success = async function (HW_ID) {
+    await exports.login()
+    return await new Promise((done, error) => {
+        request.get(config1.Url.homework.success, {
+            qs: { HW_ID },
+            jar: j
+        }, function (err, res, body) {
+            // console.log('body', body)
+            var document = (new jsdom.JSDOM(body)).window.document
+            var result = [...document.querySelectorAll('tr')].slice(1)
+                .map(x => x.textContent.trim())
+            done(result)
+        })
+    })
+}
+

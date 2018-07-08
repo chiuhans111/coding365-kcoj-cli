@@ -1,6 +1,7 @@
 const child_process = require('child_process')
 const chalk = require('chalk')
-module.exports = async function (programPath, problemParsed, detail) {
+const RunResult = require('./format/RunResult')
+module.exports = async function (programPath, problemParsed) {
     var result = await Promise.all(problemParsed.tests.map(async function (test) {
         return await new Promise(done => {
 
@@ -44,25 +45,18 @@ module.exports = async function (programPath, problemParsed, detail) {
         })
     }))
 
-
+    var runResult = new RunResult()
     result.map((x, i) => {
-        var output = chalk.black.bgWhite(' test ' + (i + 1) + ' ')
-        if (x.timeout) output += chalk.blue.bgBlack(' TLE (>8s) ')
-        else if (x.error.length > 0) output += chalk.yellow.bgBlack(' ERR ')
-        else if (x.correct) output += chalk.black.bgGreen(' AC ')
-        else output += chalk.red.bgBlack(' WA ')
-        console.log(output)
-        if (detail) {
-            if (!x.timeout && x.error.length > 0) {
-                console.error(x.error)
-            }
-            console.log("correct answer:")
-            console.log(x.answer)
-            console.log("your output:")
-            console.log(x.output)
-        }
+        runResult.addResult({
+            id: i,
+            input: x.input,
+            output: x.output,
+            error: x.error.length > 0 ? x.error : null,
+            timeout: x.timeout ? '>8s' : null,
+            answer: x.answer,
+            correct: x.correct
+        })
     })
 
-    return true
-
+    return runResult
 }

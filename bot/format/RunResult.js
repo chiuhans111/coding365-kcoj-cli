@@ -10,6 +10,8 @@ module.exports = function () {
     this.toString = function (detail, onlyProgress = false) {
         var correctCount = 0
 
+        if (me.tests.length == 0) return chalk.red.bgBlack(' no data. ')
+
         var content = me.tests.map((x, i) => {
             var output = chalk.black.bgWhite(' test ' + (i + 1) + ' ')
             if (x.timeout) output += chalk.blue.bgBlack(' TLE (' + x.timeout + ') ')
@@ -34,7 +36,6 @@ module.exports = function () {
         if (onlyProgress) {
 
 
-            if (me.tests.length == 0) return chalk.red.bgBlack(' no data. ')
 
 
             var correctPercent = correctCount / me.tests.length

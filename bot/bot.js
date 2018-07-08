@@ -100,7 +100,7 @@ exports.homework_up = async function (hwId, filepath, desc = '') {
 
 
 exports.homework_result = async function (questionID, studentID, auto) {
-    if (auto) process.stdout.write('please wait...\r')
+    if (auto) process.stdout.write('  please wait...\r')
     if (studentID == null) studentID = config2.user.name
     await exports.login()
     var output = null
@@ -148,6 +148,7 @@ exports.homework_result = async function (questionID, studentID, auto) {
         }
 
     } while (refresh)
+    process.stdout.clearLine()
     return output
 }
 

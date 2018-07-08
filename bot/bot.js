@@ -86,11 +86,20 @@ exports.homework_show = async function (hwId) {
             qs: { hwId },
             jar: j
         }, function (err, res, body) {
+            var content = ''
+            body.replace(/^ <BR> ([^]*?)$/gm, function (str, line) {
+                content += line.replace(/[\s\r\n]*$/, '') + '\n'
+            })
+            content = content.replace(/<br>[^]*$/, '')
+
+            /*
             var document = (new jsdom.JSDOM(body)).window.document
+
             var content = [...document.body.childNodes]
                 .filter(x => x.nodeType == x.TEXT_NODE)
-                .map(x => x.nodeValue.trim())
-            done(content.join('\n'))
+                .map(x => x.nodeValue.trim()).join('\n')
+                */
+            done(content)
         })
         // }
     }).then(result => {

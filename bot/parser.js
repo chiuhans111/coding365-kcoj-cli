@@ -21,6 +21,7 @@ exports.fromProblem = function (id, str) {
         desc: (str.match(/([^]*?)>>INPUT<</) || { 1: '無說明' })[1]
     }
     var tests = [];
+    //console.log(str)
     str.replace(/>>INPUT<<\n?([^]+?)\n*>>OUTPUT<<\n?([^\n]*(\n[^\n]+)*)/g, function (str, input, output) {
         tests.push({
             input: input + '\n', output: output + '\n'
@@ -37,7 +38,7 @@ exports.fromFile = function (filepath) {
     var str = fs.readFileSync(path.resolve(filepath)).toString()
     str.replace(/'''([^]+)'''/, function (str2, code) {
         code.replace(/\r/g, '').replace(/^input:\n?([^]+?)\n*^output:\n?([^\n]*(\n[^\n]+)*)/gm, function (str, input, output) {
-            
+
             input = input.replace(/\r/g, '')
             output = output.replace(/\r/g, '')
             tests.push({

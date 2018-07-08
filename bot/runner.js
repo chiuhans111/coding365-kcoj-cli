@@ -13,7 +13,9 @@ module.exports = async function (programPath, problemParsed) {
                 py.kill()
                 done({
                     timeout: true,
-                    answer: test.output
+                    error,
+                    answer: test.output,
+                    output
                 })
             }, 8000);
 

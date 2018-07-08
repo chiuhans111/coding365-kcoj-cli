@@ -58,7 +58,8 @@ typings/
 .env
 
 # config
-*/config/private.js
+/config.json
+*/config/key.js
 
 # cache
 */cache/*

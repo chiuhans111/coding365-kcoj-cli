@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const config2 = require('../config/private')
+const config = require('../config/config')
 
 function Homework(content) {
     /**@type {Homework} */
@@ -37,14 +37,14 @@ function Homework(content) {
 
             if (me.finished.indexOf(me.studentId) != -1) {
                 if (!me.runResult.pass()) {
-                    if (me.studentId == config2.user.name && me.uploaded)
+                    if (me.studentId == config.private.user.name && me.uploaded)
                         output += chalk.bgGreen.black(' ') + chalk.red('no data. ')
                     else
                         output += chalk.red(' no data. ')
 
                     nodata = true
                 }
-                else if (me.studentId == config2.user.name && !me.uploaded) {
+                else if (me.studentId == config.private.user.name && !me.uploaded) {
                     output += chalk.red(' no data. ')
                     nodata = true
                 }
@@ -52,9 +52,9 @@ function Homework(content) {
                     output += chalk.black.bgGreen('    ok    ')
                 }
             } else {
-                if (!me.uploaded && me.studentId == config2.user.name)
+                if (!me.uploaded && me.studentId == config.private.user.name)
                     output += chalk.red('    --    ')
-                else if (me.uploaded && me.studentId == config2.user.name && me.runResult.nodata())
+                else if (me.uploaded && me.studentId == config.private.user.name && me.runResult.nodata())
                     output += chalk.bgGreen.black(' ') + chalk.red('retry.   ')
                 else output += me.runResult.toString(null, true)
             }

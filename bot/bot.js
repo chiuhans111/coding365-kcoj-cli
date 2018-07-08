@@ -10,8 +10,10 @@ const process = require('process')
 // require('request').debug = true
 
 
-const config1 = require('./config/public')
-const config2 = require('./config/private')
+
+const config = require('./config/config').config
+
+
 
 var cookie = null
 
@@ -19,32 +21,37 @@ var cookie = null
 var logined = false
 var j = require('request').jar()
 exports.login = function (name, passwd, rdoCourse) {
-    if (name == null) name = config2.user.name
-    if (passwd == null) passwd = config2.user.passwd
-    if (rdoCourse == null) rdoCourse = config2.courseId
+    if (name == null) name = config.private.user.name
+    if (passwd == null) passwd = config.private.user.passwd
+    if (rdoCourse == null) rdoCourse = config.public.courseId
     if (logined) return new Promise(done => done())
     else
-        return new Promise((done, error) => request.post(config1.Url.login, {
+        return new Promise((done, error) => request.post(config.public.Url.login, {
             form: { name, passwd, rdoCourse },
             jar: j
-        }, done)).then(_ => new Promise((done, err) => request.get(config1.Url.welcome, {
+        }, done)).then(_ => new Promise((done, err) => request.get(config.public.Url.welcome, {
             jar: j
         }, function (err, res, body) {
             var document = (new jsdom.JSDOM(body)).window.document
             var content = document.body.textContent
             logined = true
-            done(content)
+            if (content.match(name))
+                done(content)
+            else {
+                console.log('please check your username and password.')
+                done('login failed')
+            }
         })))
 }
 
 
 exports.homework_all = async function (hwType = null, detail = false, studentId) {
-    if (studentId == null) studentId = config2.user.name
+    if (studentId == null) studentId = config.private.user.name
     return new Promise(async function (done) {
         await exports.login()
         process.stdout.clearLine()
         process.stdout.write('  fetching homework list\r')
-        request.get(config1.Url.homework.board, {
+        request.get(config.public.Url.homework.board, {
             qs: hwType ? { hwType } : {},
             jar: j
         }, async function (err, res, body) {
@@ -82,7 +89,7 @@ exports.homework_show = async function (hwId) {
         // if (fs.existsSync(cachePath)) done(fs.readFileSync(cachePath).toString())
         // else {
         await exports.login()
-        request.post(config1.Url.homework.show, {
+        request.post(config.public.Url.homework.show, {
             qs: { hwId },
             jar: j
         }, function (err, res, body) {
@@ -111,7 +118,7 @@ exports.homework_show = async function (hwId) {
 exports.homework_del = async function (title) {
     await exports.login()
     return await new Promise(done => {
-        request.post(config1.Url.homework.del, {
+        request.post(config.public.Url.homework.del, {
             qs: { title },
             jar: j
         }, function (err, res, body) {
@@ -126,11 +133,11 @@ exports.homework_up = async function (hwId, filepath, desc = '') {
 
     await exports.login()
     return await new Promise((done, error) => {
-        request.get(config1.Url.homework.upid, {
+        request.get(config.public.Url.homework.upid, {
             qs: { hwId },
             jar: j,
         }, function () {
-            var form = request.post(config1.Url.homework.up, {
+            var form = request.post(config.public.Url.homework.up, {
                 jar: j
             }, function (err, res, body) {
                 var document = (new jsdom.JSDOM(body)).window.document
@@ -148,7 +155,7 @@ exports.homework_up = async function (hwId, filepath, desc = '') {
 
 exports.homework_result = async function (questionID, studentID, auto) {
     if (auto) process.stdout.write('  please wait...\r')
-    if (studentID == null) studentID = config2.user.name
+    if (studentID == null) studentID = config.private.user.name
     await exports.login()
     var output = null
     var refresh = false
@@ -156,7 +163,7 @@ exports.homework_result = async function (questionID, studentID, auto) {
     do {
         refresh = false
         output = new RunResult()
-        await new Promise((done, error) => request.get(config1.Url.homework.result, {
+        await new Promise((done, error) => request.get(config.public.Url.homework.result, {
             qs: { questionID, studentID },
             jar: j
         }, function (err, res, body) {
@@ -204,7 +211,7 @@ exports.homework_result = async function (questionID, studentID, auto) {
 exports.homework_success = async function (HW_ID) {
     await exports.login()
     return await new Promise((done, error) => {
-        request.get(config1.Url.homework.success, {
+        request.get(config.public.Url.homework.success, {
             qs: { HW_ID },
             jar: j
         }, function (err, res, body) {

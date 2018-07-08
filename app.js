@@ -6,6 +6,7 @@ var process = require('process')
 var command = require('./command')
 var runner = require('./bot/runner')
 var parser = require('./bot/parser')
+var config = require('./bot/config/config')
 var fs = require('fs')
 var chalk = require('chalk')
 var path = require('path')
@@ -53,7 +54,14 @@ function findHWID(str) {
     return null
 }
 
+var configLoaded = false
+
 async function main(forceResetHw = false, prefix = '') {
+
+    if (!configLoaded) {
+        await config.load()
+        configLoaded = true
+    }
 
     if (program.list) {
         console.log(' downloading... \r')
@@ -135,6 +143,8 @@ async function main(forceResetHw = false, prefix = '') {
     return true
 }
 main();
+
+
 /*
 bot.login()
     .then(_ => console.log('login success'))

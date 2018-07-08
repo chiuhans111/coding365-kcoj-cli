@@ -9,7 +9,7 @@ so you don't have to worried about using _THE_ `Difficult To Use` website.
 * `Python` installed  ( to support local code checks )
 ## Installing
 ### Using Binary
-1. download at releases
+1. [downloads](https://github.com/chiuhans111/coding365-kcoj-cli/releases)
 2. run in commandline
 3. [Getting Started!](#getting-started)
 ### Manualy Install and Build

@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 
 var RE = {
-    input: /(^\s*\n)*(-+\s*\n)?(^\s*\n)*^(((範例)|(sample|smaple))?\s*((輸入)|(input))\s*((範例)|(sample))?)[:：]?\s*$\n?-*(\n\s*$)*/gim,
-    output: /(^\s*\n)*(-+\s*\n)?(^\s*\n)*^(((範例)|(sample|smaple))?\s*((輸出)|(output))\s*((範例)|(sample))?)[:：]?\s*$\n?-*(\n\s*$)*/gim,
+    input: /(^\s*\n)*(-+\s*\n)?(^\s*\n)*^(((範例)|(sample|smaple))?\s*((輸入)|(input))\s*((範例)|(sample))?)[:：]?\s*$\n?(---+)?$(\n\s*$)*/gim,
+    output: /(^\s*\n)*(-+\s*\n)?(^\s*\n)*^(((範例)|(sample|smaple))?\s*((輸出)|(output))\s*((範例)|(sample))?)[:：]?\s*$\n?(---+)?$(\n\s*$)*/gim,
 }
 
 

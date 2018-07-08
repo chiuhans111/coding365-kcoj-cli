@@ -4,6 +4,7 @@ const jsdom = require('jsdom')
 const path = require('path')
 const chalk = require('chalk')
 const RunResult = require('./format/RunResult')
+const Homework = require('./format/Homework')
 const process = require('process')
 
 // require('request').debug = true
@@ -34,6 +35,37 @@ exports.login = function (name, passwd, rdoCourse) {
             logined = true
             done(content)
         })))
+}
+
+
+exports.homework_all = async function (hwType = null, detail = false, studentId) {
+    if (studentId == null) studentId = config2.user.name
+    return new Promise(async function (done) {
+        await exports.login()
+        request.get(config1.Url.homework.board, {
+            qs: hwType ? { hwType } : {},
+            jar: j
+        }, async function (err, res, body) {
+            var document = (new jsdom.JSDOM(body)).window.document
+            var lines = [...document.querySelectorAll('tr')].slice(1)
+            var content = await Promise.all(lines.map(async function (line, id, arr) {
+                process.stdout.write('  processing' + id + '/' + arr.length + '     \r')
+                var [no, type, id, time, _, language, mark] = [...line.querySelectorAll('td')].map(x => x.textContent)
+                var homework = new Homework({
+                    no: Number(no), type, id: id.trim(), time: new Date(time), language,
+                    uploaded: mark.match('已繳'), studentId
+                })
+
+                if (detail) {
+                    homework.runResult = await exports.homework_result(homework.id, studentId)
+                    homework.finished = await exports.homework_success(homework.id)
+                }
+                return homework
+            }))
+            done(content)
+        })
+
+    })
 }
 
 exports.homework_show = async function (hwId) {
@@ -122,10 +154,11 @@ exports.homework_result = async function (questionID, studentID, auto) {
                 .map(x => {
                     // console.log(x.textContent)
                     var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
+
                     output.addResult({
                         id: result[0],
                         timeout: result[1].match('超過時間') ? '>' + result[1].match(/(\d+)秒/)[1] + 's' : null,
-                        correct: !result[1].match('失敗')
+                        correct: result[1].match('通過')
                     })
                 })
 

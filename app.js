@@ -16,6 +16,8 @@ var path = require('path')
 program.version('0.8.7')
     .name('kcoj')
     .option('')
+    .option('-l, --list', 'list all homework')
+    .option('')
     .option('-w, --hw [id]', 'set homework id')
     .option('-i, --file [filename]', 'main file')
     .option('')
@@ -52,6 +54,13 @@ function findHWID(str) {
 }
 
 async function main(forceResetHw = false, prefix = '') {
+
+    if (program.list) {
+        var all = await bot.homework_all(undefined, program.detail, program.user)
+        for (var i of all) console.log(i.toString())
+        return
+    }
+
 
     if (program.file == null && program.hw == null && program.init == null) {
         var folder = path.resolve('./')
@@ -119,7 +128,6 @@ async function main(forceResetHw = false, prefix = '') {
         }
 
     }
-    //else command();
 
     return true
 }

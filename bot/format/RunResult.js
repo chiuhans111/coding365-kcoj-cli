@@ -7,10 +7,13 @@ module.exports = function () {
     this.addResult = function (obj) {
         me.tests.push(obj)
     }
+    this.pass = function () {
+        return me.tests.every(x => x.correct) && me.tests.length > 0
+    }
     this.toString = function (detail, onlyProgress = false) {
         var correctCount = 0
 
-        if (me.tests.length == 0) return chalk.red.bgBlack(' no data. ')
+        if (me.tests.length == 0) return chalk.red('    --    ')
 
         var content = me.tests.map((x, i) => {
             var output = chalk.black.bgWhite(' test ' + (i + 1) + ' ')

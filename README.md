@@ -11,7 +11,7 @@ so you don't have to worried about using _THE_ `Difficult To Use` website.
 ### Using Binary
 1. download at releases
 2. run in commandline
-3. [Getting Started!](#Getting_Started)
+3. [Getting Started!](#getting-started)
 ### Manualy Install and Build
 1. install node modules
 ```

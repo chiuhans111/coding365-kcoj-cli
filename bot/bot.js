@@ -27,7 +27,7 @@ exports.login = function (name, passwd, rdoCourse) {
     if (rdoCourse == null) rdoCourse = config.public.courseId
     if (logined) return new Promise(done => done())
     else {
-        console.log('logined as', name, rdoCourse)
+        //console.log('logined as', name, rdoCourse)
         return new Promise((done, error) => request.post(config.public.Url.login, {
             form: { name, passwd, rdoCourse },
             jar: j
@@ -70,6 +70,7 @@ exports.homework_all = async function (hwType = null, detail = false, studentId,
                 if (detail) {
                     homework.runResult = await exports.homework_result(homework.id, studentId)
                     homework.finished = await exports.homework_success(homework.id)
+                    homework.update()
                 }
                 process.stdout.write('  processed:' + count + '/' + arr.length + '     \r')
                 count++

@@ -1,11 +1,12 @@
 const child_process = require('child_process')
 const chalk = require('chalk')
 const RunResult = require('./format/RunResult')
+var config = require('./config/config').config
 module.exports = async function (programPath, problemParsed) {
     var result = await Promise.all(problemParsed.tests.map(async function (test) {
         return await new Promise(done => {
 
-            var py = child_process.spawn('python', [programPath])
+            var py = child_process.exec(config.public.exec.replace(/%1/, programPath))
 
             py.stdin.write(test.input)
 

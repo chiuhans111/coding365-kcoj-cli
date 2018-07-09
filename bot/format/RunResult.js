@@ -13,6 +13,10 @@ module.exports = function () {
     this.nodata = function () {
         return me.tests.length == 0
     }
+    this.progress = function () {
+        if (me.nodata()) return 0
+        return me.tests.filter(x => x.correct).length / me.tests.length
+    }
     this.toString = function (detail, onlyProgress = false) {
         var correctCount = 0
 

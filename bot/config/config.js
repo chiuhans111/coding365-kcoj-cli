@@ -34,7 +34,8 @@ exports.config = {
                 "board": "https://140.124.184.228/_Exam/HomeworkBoard"
             }
         },
-        "courseId": 4
+        "courseId": 4,
+        "exec": "python %1"
     },
     private: {
         "user": {

@@ -14,6 +14,33 @@ function Homework(content) {
     this.finished = null
     this.studentId = ''
 
+    this.isUser = false
+    this.details = false
+    this.nodata = false
+    this.ok = false
+    this.retry = false
+
+    this.update = function () {
+        if (me.runResult && me.finished) {
+            me.details = true
+
+            if (me.studentId == config.private.user.name)
+                me.isUser = true
+
+            if (me.finished.indexOf(me.studentId) != -1) {
+                if (!me.runResult.pass()) me.nodata = true
+                else if (me.studentId == config.private.user.name && !me.uploaded)
+                    me.nodata = true
+                else me.ok = true
+
+            } else {
+                if (me.isUser && me.runResult.nodata())
+                    me.retry = true
+            }
+        }
+    }
+
+
     Object.assign(this, content)
 
     this.toString = function () {
@@ -31,34 +58,28 @@ function Homework(content) {
 
 
 
-        if (me.runResult && me.finished) {
+        if (me.details) {
 
 
-
-            if (me.finished.indexOf(me.studentId) != -1) {
-                if (!me.runResult.pass()) {
-                    if (me.studentId == config.private.user.name && me.uploaded)
+            if (me.nodata)
+                if (me.isUser)
+                    if (me.uploaded)
                         output += chalk.bgGreen.black(' ') + chalk.red('no data. ')
+                    else output += chalk.red(' no data. ')
+                else output += chalk.red(' no data. ')
+            else if (me.ok) output += chalk.black.bgGreen('    ok    ')
+            else {
+                if (me.isUser) {
+                    if (me.retry)
+                        output += chalk.bgGreen.black(' ') + chalk.red('retry.   ')
+                    else if (me.uploaded)
+                        output += me.runResult.toString(null, true)
                     else
-                        output += chalk.red(' no data. ')
-
-                    nodata = true
+                        output += chalk.red('    --    ')
                 }
-                else if (me.studentId == config.private.user.name && !me.uploaded) {
-                    output += chalk.red(' no data. ')
-                    nodata = true
-                }
-                else {
-                    output += chalk.black.bgGreen('    ok    ')
-                }
-            } else {
-                if (!me.uploaded && me.studentId == config.private.user.name)
-                    output += chalk.red('    --    ')
-                else if (me.uploaded && me.studentId == config.private.user.name && me.runResult.nodata())
-                    output += chalk.bgGreen.black(' ') + chalk.red('retry.   ')
-                else output += me.runResult.toString(null, true)
             }
-            if (!nodata) {
+
+            if (!me.nodata) {
                 var passedStr = ' ' + String(me.finished.length).padStart(3) + ' pass     '
                 var passedBar = ''
                 for (var i = 0; i < passedStr.length; i++)
@@ -94,7 +115,7 @@ function timeformat(timeA, timeB) {
     var data = []
     for (var size of [1000, 60, 60, 24, 1]) {
         data.push(time % size)
-        time = Math.floor(time/size)
+        time = Math.floor(time / size)
     }
     var tags = ['ms', 'sec', 'min', 'hour', 'day']
     var chalks = [

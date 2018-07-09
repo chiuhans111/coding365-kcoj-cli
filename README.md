@@ -3,25 +3,44 @@ This is a simple _command line interface_ to help you finnish your programming h
 
 so you don't have to worried about using _THE_ `Difficult To Use` website.
 
-### Prerequisites
-* `Node.js` installed
-* `Python` installed
-### Installing
+## Prerequisites
+* `Node.js` installed ( if you want to build by yourself )
+  - `npm install pkg` ( this is use to build binarys )
+* `Python` installed  ( to support local code checks )
+## Installing
+### Using Binary
+1. [downloads](https://github.com/chiuhans111/coding365-kcoj-cli/releases)
+2. run in commandline
+3. [Getting Started!](#getting-started)
+### Manualy Install and Build
 1. install node modules
 ```
-cd coding365
+cd coding365-kcoj-cli
 npm install
 ```
 2. link to global
 ```
 npm link
 ```
-3. config your `username` and `password`
-
-see `./bot/config/private.js.example`
-
-
+3. config your `secret key`
+file: `./bot/config/key.js`
+```
+exports.key = 'your secret key can be any string you want!'
+```
+4. run / build
+```
+node app.js
+npm run build
+```
 ## Getting Started
+### First Time Login
+```
+kcoj
+```
+and input your username and password, 
+`config.json` will store at the folder where you execute the command,
+you can change more things there
+
 ### Help menu
 ```
 kcoj -h
@@ -72,3 +91,11 @@ kcoj -i FileName.py -o
 ```
 kcoj -i FileName.py -dpoa
 ```
+### See all your homework
+```
+kcoj -l --detail
+```
+
+
+
+THANKS

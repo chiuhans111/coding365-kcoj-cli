@@ -64,7 +64,7 @@ exports.homework_all = async function (hwType = null, detail = false, studentId,
                 var [no, type, id, time, _, language, mark] = [...line.querySelectorAll('td')].map(x => x.textContent)
                 var homework = new Homework({
                     no: Number(no), type, id: id.trim(), time: new Date(time), language,
-                    uploaded: mark.match('已繳'), studentId
+                    uploaded: (mark.match('已繳') != null), studentId
                 })
 
                 if (detail) {

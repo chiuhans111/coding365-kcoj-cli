@@ -34,7 +34,7 @@ function Homework(content) {
                 else me.ok = true
 
             } else {
-                if (me.isUser && me.runResult.nodata())
+                if (me.isUser && me.runResult.nodata() && me.uploaded)
                     me.retry = true
             }
         }
@@ -76,7 +76,8 @@ function Homework(content) {
                         output += me.runResult.toString(null, true)
                     else
                         output += chalk.red('    --    ')
-                }
+                } else
+                    output += me.runResult.toString(null, true)
             }
 
             if (!me.nodata) {

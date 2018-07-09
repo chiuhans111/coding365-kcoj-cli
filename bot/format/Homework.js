@@ -94,7 +94,7 @@ function timeformat(timeA, timeB) {
     var data = []
     for (var size of [1000, 60, 60, 24, 1]) {
         data.push(time % size)
-        time /= size
+        time = Math.floor(time/size)
     }
     var tags = ['ms', 'sec', 'min', 'hour', 'day']
     var chalks = [

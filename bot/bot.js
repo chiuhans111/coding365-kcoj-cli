@@ -17,15 +17,17 @@ const config = require('./config/config').config
 
 var cookie = null
 
-
-var logined = false
 var j = require('request').jar()
+
+var logined = null
 exports.login = function (name, passwd, rdoCourse) {
+    var loginHash = JSON.stringify({ name, passwd, rdoCourse })
     if (name == null) name = config.private.user.name
     if (passwd == null) passwd = config.private.user.passwd
     if (rdoCourse == null) rdoCourse = config.public.courseId
     if (logined) return new Promise(done => done())
-    else
+    else {
+        console.log('logined as', name, rdoCourse)
         return new Promise((done, error) => request.post(config.public.Url.login, {
             form: { name, passwd, rdoCourse },
             jar: j
@@ -34,21 +36,21 @@ exports.login = function (name, passwd, rdoCourse) {
         }, function (err, res, body) {
             var document = (new jsdom.JSDOM(body)).window.document
             var content = document.body.textContent
-            logined = true
+            logined = loginHash
             if (content.match(name))
-                done(content)
+                done(j)
             else {
                 console.log('please check your username and password.')
                 done('login failed')
             }
         })))
+    }
 }
 
 
-exports.homework_all = async function (hwType = null, detail = false, studentId) {
+exports.homework_all = async function (hwType = null, detail = false, studentId, courseId) {
     if (studentId == null) studentId = config.private.user.name
     return new Promise(async function (done) {
-        await exports.login()
         process.stdout.clearLine()
         process.stdout.write('  fetching homework list\r')
         request.get(config.public.Url.homework.board, {
@@ -85,10 +87,8 @@ exports.homework_show = async function (hwId) {
 
     var cachePath = path.resolve(__dirname, './cache/' + hwId + '.txt')
     return new Promise(async function (done, error) {
-
         // if (fs.existsSync(cachePath)) done(fs.readFileSync(cachePath).toString())
         // else {
-        await exports.login()
         request.post(config.public.Url.homework.show, {
             qs: { hwId },
             jar: j
@@ -116,7 +116,6 @@ exports.homework_show = async function (hwId) {
 }
 
 exports.homework_del = async function (title) {
-    await exports.login()
     return await new Promise(done => {
         request.post(config.public.Url.homework.del, {
             qs: { title },
@@ -130,8 +129,6 @@ exports.homework_del = async function (title) {
 }
 
 exports.homework_up = async function (hwId, filepath, desc = '') {
-
-    await exports.login()
     return await new Promise((done, error) => {
         request.get(config.public.Url.homework.upid, {
             qs: { hwId },
@@ -156,7 +153,6 @@ exports.homework_up = async function (hwId, filepath, desc = '') {
 exports.homework_result = async function (questionID, studentID, auto) {
     if (auto) process.stdout.write('  please wait...\r')
     if (studentID == null) studentID = config.private.user.name
-    await exports.login()
     var output = null
     var refresh = false
     var retry = 0
@@ -209,7 +205,6 @@ exports.homework_result = async function (questionID, studentID, auto) {
 
 
 exports.homework_success = async function (HW_ID) {
-    await exports.login()
     return await new Promise((done, error) => {
         request.get(config.public.Url.homework.success, {
             qs: { HW_ID },

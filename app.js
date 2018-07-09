@@ -27,6 +27,7 @@ program.version('0.8.7')
     .option('-o  --result', 'see result')
     .option('-a  --auto', 'auto reload')
     .option('    --user [username]', 'see other user')
+    .option('    --course [id]', '1:c 2:c# 3:JAVA 4:Python')
     .option('    --success', 'see who success')
     .option('')
     .option('-p, --push', 'upload homework')
@@ -63,10 +64,18 @@ async function main(forceResetHw = false, prefix = '') {
         configLoaded = true
     }
 
+    if (program.list || program.hw ||
+        program.read || program.result ||
+        program.push || program.del ||
+        program.init)
+        await bot.login(null, null, program.course)
+
+
+
     if (program.list) {
         console.log(' downloading... \r')
 
-        var all = await bot.homework_all(undefined, program.detail, program.user)
+        var all = await bot.homework_all(undefined, program.detail, program.user, program.course)
         console.log(' formatting... \r')
         for (var i of all) console.log(i.toString())
         return
@@ -91,6 +100,9 @@ async function main(forceResetHw = false, prefix = '') {
         program.hw = findHWID(program.file)
         if (program.init) program.hw = program.init
     }
+
+
+
 
     if (program.hw) {
         if (program.read)

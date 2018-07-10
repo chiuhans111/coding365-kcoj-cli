@@ -1,4 +1,4 @@
-{
+module.exports = {
     "107590105": {
         "name": "吳佩珊",
         "github": "https://github.com/sansangood​"

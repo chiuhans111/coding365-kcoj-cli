@@ -63,6 +63,7 @@ exports.load = async function () {
             replace: "*"
         })
 
+
         exports.config.private.user.name = username
         exports.config.private.user.passwd = password
         exports.save()

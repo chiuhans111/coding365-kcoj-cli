@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 
 const bot = require('./bot/bot')
-var program = require('commander')
-var process = require('process')
-var command = require('./command')
 var runner = require('./bot/runner')
 var parser = require('./bot/parser')
 var config = require('./bot/config/config')
+
+var program = require('commander')
+var process = require('process')
 var fs = require('fs')
 var chalk = require('chalk')
 var path = require('path')
+
+var command = require('./command')
+var rank = require('./rank')
 
 // var cachePath = path.resolve(__dirname, './bot/cache')
 // if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath)
@@ -37,6 +40,8 @@ program.version('0.8.7')
     .option('-t, --test', 'test homework')
     .option('    --detail', 'see detail')
     .option('')
+    .option('    --rank', 'see ranks')
+    .option('')
     .option('init [hwid]', 'create a python file to start coding')
     .parse(process.argv)
 
@@ -62,6 +67,11 @@ async function main(forceResetHw = false, prefix = '') {
     if (!configLoaded) {
         await config.load()
         configLoaded = true
+    }
+
+    if (program.rank) {
+        await rank()
+        return
     }
 
     if (program.list || program.hw ||

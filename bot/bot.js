@@ -25,7 +25,7 @@ exports.login = function (name, passwd, rdoCourse) {
     if (name == null) name = config.private.user.name
     if (passwd == null) passwd = config.private.user.passwd
     if (rdoCourse == null) rdoCourse = config.public.courseId
-    if (logined) return new Promise(done => done())
+    if (logined == loginHash) return new Promise(done => done())
     else {
         //console.log('logined as', name, rdoCourse)
         return new Promise((done, error) => request.post(config.public.Url.login, {
@@ -164,7 +164,12 @@ exports.homework_result = async function (questionID, studentID, auto) {
             qs: { questionID, studentID },
             jar: j
         }, function (err, res, body) {
-
+            if (err) {
+                console.log(err)
+            }
+            if (body == null) {
+                done()
+            }
             if (body.match('未經過任何測試')) done()
 
             var document = (new jsdom.JSDOM(body)).window.document

@@ -1,0 +1,1 @@
+node C:\Users\Hans\Documents\GitHub\coding365-kcoj-cli\app.js %*

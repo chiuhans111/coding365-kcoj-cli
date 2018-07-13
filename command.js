@@ -19,8 +19,8 @@ module.exports = async function () {
         silent: true,
         replace: "*"
     })
-    
-    console.log(await bot.login(username, password))
+
+    console.log(await bot.login({ name: username, passwd: password }))
     while (1) {
         var homework = await read({
             prompt: "homework:",

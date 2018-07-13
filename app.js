@@ -24,8 +24,10 @@ program.version('0.8.7')
     .option('')
     .option('-w, --hw [id]', 'set homework id')
     .option('-i, --file [filename]', 'main file')
+    .option('    --folder [folder]', 'folder as input')
     .option('')
     .option('-r, --read', 'read homework content')
+    .option('    --save [filename]', 'save homework content')
     .option('')
     .option('-o  --result', 'see result')
     .option('-a  --auto', 'auto reload')
@@ -43,19 +45,25 @@ program.version('0.8.7')
     .option('    --rank', 'see ranks')
     .option('')
     .option('init [hwid]', 'create a python file to start coding')
+    .option('')
+    .option('    --logout', 'see you~')
     .parse(process.argv)
 
 function findHWID(str) {
     if (str == null) return null
     str = path.resolve(str)
     if (fs.existsSync(str)) {
-        // console.log(str)
-        var content = fs.readFileSync(str).toString()
-        // console.log(content)
-        var match = content.match(/^#\s*HWID:\s*(.+)\s*$/m)
-        // console.log(match)
-        if (match) return match[1]
-        else return path.basename(str).match(/\d+/)[0].padStart(3, '0')
+        if (fs.lstatSync(str).isFile()) {
+            // console.log(str)
+            var content = fs.readFileSync(str).toString()
+            // console.log(content)
+            var match = content.match(/^#\s*HWID:\s*(.+)\s*$/m)
+            // console.log(match)
+            if (match) return match[1]
+            else return path.basename(str).match(/\d+/)[0].padStart(3, '0')
+        } else {
+            return path.basename(str.trim())
+        }
     }
     return null
 }
@@ -63,6 +71,8 @@ function findHWID(str) {
 var configLoaded = false
 
 async function main(forceResetHw = false, prefix = '') {
+
+    if (program.logout) return config.delete()
 
     if (!configLoaded) {
         await config.load()
@@ -78,21 +88,28 @@ async function main(forceResetHw = false, prefix = '') {
         program.read || program.result ||
         program.push || program.del ||
         program.init)
-        await bot.login(null, null, program.course)
+        await bot.login({ courseId: program.course })
 
 
 
     if (program.list) {
         console.log(' downloading... \r')
 
-        var all = await bot.homework_all(undefined, program.detail, program.user, program.course)
+        var all = await bot.homework_all({
+            detail: program.detail,
+            studentId: program.user,
+            courseId: program.course
+        })
         console.log(' formatting... \r')
         for (var i of all) console.log(i.toString())
         return
     }
 
 
-    if (program.file == null && program.hw == null && program.init == null) {
+    if (program.file == null &&
+        program.hw == null &&
+        program.folder == null &&
+        program.init == null) {
         var folder = path.resolve('./')
         var files = fs.readdirSync(folder)
             .filter(x => path.extname(x) == '.py')
@@ -108,6 +125,10 @@ async function main(forceResetHw = false, prefix = '') {
 
     if (program.hw == null || forceResetHw) {
         program.hw = findHWID(program.file)
+        if (program.folder) {
+            program.hw = findHWID(program.folder)
+            console.log('from folder name gussed:', program.hw)
+        }
         if (program.init) program.hw = program.init
     }
 
@@ -115,8 +136,17 @@ async function main(forceResetHw = false, prefix = '') {
 
 
     if (program.hw) {
-        if (program.read)
-            console.log(await bot.homework_show(program.hw))
+        console.log('hwid:', program.hw)
+
+        if (program.read) {
+            var content = await bot.homework_show(program.hw)
+            console.log(content)
+            if (program.save) {
+                var savepath = path.resolve(program.save)
+                console.log('saving to ', savepath)
+                fs.writeFileSync(savepath, content)
+            }
+        }
         if (program.test) {
             var parsed = parser.fromFile(program.file)
             if (parsed.tests.length == 0) {
@@ -136,7 +166,11 @@ async function main(forceResetHw = false, prefix = '') {
 
         if (program.push) {
             console.log('pushing', program.hw, program.file)
-            console.log(await bot.homework_up(program.hw, program.file, program.desc))
+            console.log(await bot.homework_up({
+                hwId: program.hw,
+                filepath: program.file,
+                desc: program.desc
+            }))
         }
 
         if (program.result)

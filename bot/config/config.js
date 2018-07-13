@@ -62,17 +62,30 @@ exports.load = async function () {
             silent: true,
             replace: "*"
         })
+        console.log(" ╭→ (1:C, 2:C#, 3:JAVA, 4:PYTHON)")
+        var courseId = await read({
+            prompt: "Course ID:",
+        })
 
 
         exports.config.private.user.name = username
         exports.config.private.user.passwd = password
+        exports.config.public.courseId = courseId
         exports.save()
     }
 }
 
 exports.save = function () {
+
     var data = JSON.parse(JSON.stringify(exports.config))
     data.private = cryptojs.AES.encrypt(JSON.stringify(data.private), key).toString()
     data = JSON.stringify(data)
     fs.writeFileSync(configPath, data)
 }
+
+exports.delete = function () {
+    if (fs.existsSync(configPath))
+        fs.unlinkSync(configPath)
+}
+
+console.log("config folder:", configPath)

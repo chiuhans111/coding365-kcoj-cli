@@ -8,8 +8,8 @@ module.exports = async function () {
     var problemIds = []
     for (var course = 1; course <= 4; course++) {
         console.log(' checking course ' + course)
-        await bot.login(null, null, course)
-        var homeworks = await bot.homework_all(undefined, true)
+        await bot.login({ courseId: course })
+        var homeworks = await bot.homework_all({ detail: true })
         for (var homework of homeworks) {
             if (!homework.nodata) {
                 for (var student of homework.finished) {

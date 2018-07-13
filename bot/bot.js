@@ -20,16 +20,16 @@ var cookie = null
 var j = require('request').jar()
 
 var logined = null
-exports.login = function (name, passwd, rdoCourse) {
-    var loginHash = JSON.stringify({ name, passwd, rdoCourse })
+exports.login = function ({ name, passwd, courseId }) {
+    var loginHash = JSON.stringify({ name, passwd, courseId })
     if (name == null) name = config.private.user.name
     if (passwd == null) passwd = config.private.user.passwd
-    if (rdoCourse == null) rdoCourse = config.public.courseId
+    if (courseId == null) courseId = config.public.courseId
     if (logined == loginHash) return new Promise(done => done())
     else {
         //console.log('logined as', name, rdoCourse)
         return new Promise((done, error) => request.post(config.public.Url.login, {
-            form: { name, passwd, rdoCourse },
+            form: { name, passwd, rdoCourse: courseId },
             jar: j
         }, done)).then(_ => new Promise((done, err) => request.get(config.public.Url.welcome, {
             jar: j
@@ -48,7 +48,7 @@ exports.login = function (name, passwd, rdoCourse) {
 }
 
 
-exports.homework_all = async function (hwType = null, detail = false, studentId, courseId) {
+exports.homework_all = async function ({ hwType, detail = false, studentId, courseId }) {
     if (studentId == null) studentId = config.private.user.name
     return new Promise(async function (done) {
         process.stdout.clearLine()
@@ -60,22 +60,40 @@ exports.homework_all = async function (hwType = null, detail = false, studentId,
             var document = (new jsdom.JSDOM(body)).window.document
             var lines = [...document.querySelectorAll('tr')].slice(1)
             var count = 0
-            var content = await Promise.all(lines.map(async function (line, id, arr) {
-                var [no, type, id, time, _, language, mark] = [...line.querySelectorAll('td')].map(x => x.textContent)
-                var homework = new Homework({
-                    no: Number(no), type, id: id.trim(), time: new Date(time), language,
-                    uploaded: (mark.match('已繳') != null), studentId
-                })
 
-                if (detail) {
-                    homework.runResult = await exports.homework_result(homework.id, studentId)
-                    homework.finished = await exports.homework_success(homework.id)
-                    homework.update()
-                }
-                process.stdout.write('  processed:' + count + '/' + arr.length + '     \r')
-                count++
-                return homework
-            }))
+            var Works = lines.map((line, id, arr) => {
+                return (function (line, id, arr) {
+                    return async () => {
+                        var [no, type, id, time, _, language, mark] = [...line.querySelectorAll('td')].map(x => x.textContent)
+                        var homework = new Homework({
+                            no: Number(no), type, id: id.trim(), time: new Date(time), language,
+                            uploaded: (mark.match('已繳') != null), studentId
+                        })
+
+                        if (detail) {
+                            homework.runResult = await exports.homework_result(homework.id, studentId)
+                            homework.finished = await exports.homework_success(homework.id)
+                            homework.update()
+                        }
+                        process.stdout.write('  processed:' + count + '/' + arr.length + '     \r')
+                        count++
+                        return homework
+                    }
+                })(line, id, arr)
+            })
+
+            var content = []
+            while (Works.length > 0) {
+                var nowWorkingon = []
+                Works = Works.filter((Work, id) => {
+                    if (id > 8) return true
+                    nowWorkingon.push(Work)
+                    return false
+                })
+                var result = await Promise.all(nowWorkingon.map(x => x()))
+                content.push(...result)
+            }
+
             process.stdout.clearLine()
 
             done(content)
@@ -116,10 +134,10 @@ exports.homework_show = async function (hwId) {
     })
 }
 
-exports.homework_del = async function (title) {
+exports.homework_del = async function (hwId) {
     return await new Promise(done => {
         request.post(config.public.Url.homework.del, {
-            qs: { title },
+            qs: { title: hwId },
             jar: j
         }, function (err, res, body) {
             var document = (new jsdom.JSDOM(body)).window.document
@@ -129,7 +147,8 @@ exports.homework_del = async function (title) {
     })
 }
 
-exports.homework_up = async function (hwId, filepath, desc = '') {
+exports.homework_up = async function ({ hwId, filepath, desc = '' }) {
+    console.log('filepath', filepath)
     return await new Promise((done, error) => {
         request.get(config.public.Url.homework.upid, {
             qs: { hwId },

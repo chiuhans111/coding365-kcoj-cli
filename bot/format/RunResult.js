@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-
+const ProgressBar = require('./ProgressBar')
 module.exports = function () {
     var me = this
     this.tests = []
@@ -45,21 +45,18 @@ module.exports = function () {
 
         if (onlyProgress) {
 
+            // var correctPercent = correctCount / me.tests.length
+            // var progressStr = '   ' +
+            //     String(Math.floor(correctPercent * 100)).padStart(3) + '%   '
+            // var progressBar = ''
+            // for (var i in progressStr) {
+            //     if (i / progressStr.length < correctPercent)
+            //         progressBar += chalk.black.bgGreen(progressStr[i])
+            //     else
+            //         progressBar += chalk.white.bgRed(progressStr[i])
+            // }
 
-
-
-            var correctPercent = correctCount / me.tests.length
-            var progressStr = '   ' +
-                String(Math.floor(correctPercent * 100)).padStart(3) + '%   '
-            var progressBar = ''
-            for (var i in progressStr) {
-                if (i / progressStr.length < correctPercent)
-                    progressBar += chalk.black.bgGreen(progressStr[i])
-                else
-                    progressBar += chalk.white.bgRed(progressStr[i])
-            }
-
-            return progressBar
+            return ProgressBar(10, me.tests.length, correctCount)
         }
 
 

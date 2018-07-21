@@ -6,7 +6,7 @@ const chalk = require('chalk')
 const RunResult = require('./format/RunResult')
 const Homework = require('./format/Homework')
 const process = require('process')
-
+const ProgressBar = require('./format/ProgressBar')
 // require('request').debug = true
 
 
@@ -31,7 +31,7 @@ exports.login = function ({ name, passwd, courseId }) {
         return new Promise((done, error) => request.post(config.public.Url.login, {
             form: { name, passwd, rdoCourse: courseId },
             jar: j
-        }, done)).then(_ => new Promise((done, err) => request.get(config.public.Url.welcome, {
+        }, done)).then(_ => new Promise((done, error) => request.get(config.public.Url.welcome, {
             jar: j
         }, function (err, res, body) {
             var document = (new jsdom.JSDOM(body)).window.document
@@ -41,7 +41,7 @@ exports.login = function ({ name, passwd, courseId }) {
                 done(j)
             else {
                 console.log('please check your username and password.')
-                done('login failed')
+                error('login failed')
             }
         })))
     }
@@ -75,27 +75,37 @@ exports.homework_all = async function ({ hwType, detail = false, studentId, cour
                             homework.finished = await exports.homework_success(homework.id)
                             homework.update()
                         }
-                        process.stdout.write('  processed:' + count + '/' + arr.length + '     \r')
                         count++
+                        var bar = ProgressBar(30, arr.length, count, undefined, undefined, 'white', 'bgBlack');
+                        process.stdout.write('  loading.. [' + bar + ']\r')
                         return homework
                     }
                 })(line, id, arr)
             })
 
             var content = []
+
+            var allPromise = []
             while (Works.length > 0) {
                 var nowWorkingon = []
                 Works = Works.filter((Work, id) => {
-                    if (id > 8) return true
-                    nowWorkingon.push(Work)
+                    nowWorkingon = allPromise.filter(x => !x.done)
+                    if (nowWorkingon.length >= 12) return true
+                    var r = (function (obj) {
+                        obj.promise = obj.Work().then(result => {
+                            obj.done = true
+                            return result
+                        })
+                        allPromise.push(obj)
+                    })({ done: false, Work })
                     return false
                 })
-                var result = await Promise.all(nowWorkingon.map(x => x()))
-                content.push(...result)
+                await Promise.race(nowWorkingon.map(x => x.promise))
             }
+            content = await Promise.all(allPromise.map(x => x.promise))
 
             process.stdout.clearLine()
-
+            console.log(allPromise.length)
             done(content)
         })
 
@@ -224,7 +234,6 @@ exports.homework_result = async function (questionID, studentID, auto) {
         }
 
     } while (refresh)
-    process.stdout.clearLine()
     return output
 }
 

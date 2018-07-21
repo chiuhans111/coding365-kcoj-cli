@@ -71,7 +71,7 @@ module.exports = async function () {
     ]
 
     var header = ''
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 7; i++) {
         header += '\n' + (''.padStart(9 + 2 + 4 + 2 + 4 + 2 + 3))
         problemIds.map((id, x) => {
             header += coursechalk[x % 2][id[0]]((id[i] != null) ? id[i] : ' ')

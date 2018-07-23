@@ -42,6 +42,11 @@ exports.config = {
             "name": "username",
             "passwd": "password"
         },
+        "database": {
+            "url": "localhost",
+            "user": "",
+            "passwd": ""
+        }
     }
 }
 

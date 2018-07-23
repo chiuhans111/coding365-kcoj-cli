@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "pkg ./app.js --out-path ./release/"
+    "build": "pkg ./app.js --out-path ./release/",
+    "server": "node ./server.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,10 @@
     "commander": "^2.16.0",
     "crypto-js": "^3.1.9-1",
     "jsdom": "^11.11.0",
+    "koa": "^2.5.2",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
+    "mongoose": "^5.2.4",
     "read": "^1.0.7",
     "request": "^2.87.0"
   },

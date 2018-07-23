@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./vue.min.js"></script>
+</head>
+<style>
+    .vert {
+        writing-mode: vertical-lr;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 1px;
+        padding: 0;
+        width: 10px;
+        font-size: 12px;
+    }
+
+    table {
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    td {
+        border: solid 0.5px rgb(34, 34, 34)
+    }
+
+
+    .failed {
+        background-color: rgb(228, 57, 27)
+    }
+
+    .timeout {
+        background-color: rgb(44, 174, 238)
+    }
+
+    .success {
+        background-color: rgb(20, 181, 71)
+    }
+
+    .absolute {
+        position: absolute;
+    }
+
+    .small {
+        font-family: consolas;
+        font-size: 14px;
+    }
+</style>
+
+<body>
+    <div id="app">
+        <table>
+            <thead>
+                <td>id</td>
+                <td>name</td>
+                <td>count</td>
+                <td v-for="problem in students[0].problems">
+                    <p class="vert">
+                        {{problem.problem}}
+                    </p>
+                </td>
+            </thead>
+            <tbody>
+                <tr v-for="student in students">
+                    <td>
+                        {{student._id}}
+                    </td>
+                    <td>
+                        {{student.info.name}}
+                    </td>
+                    <td>
+                        {{student.success_count}}
+                    </td>
+                    <td v-for="problem in student.problems" :class="{
+                        success: problem.success_count>0,
+                        timeout: problem.timeout_count>0,
+                        failed: problem.fail_count>0,
+                    }" :title="problem.desc">
+                        <span class="small">
+
+                            {{problem.lang}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+<script>
+
+    var xhr = new XMLHttpRequest()
+    var data = { students: [] }
+    xhr.open('get', '/api/v1/rank')
+    xhr.onload = function () {
+        var response = xhr.response
+        var students = JSON.parse(response)
+        students.map(student => {
+            student.problems.map(problem => {
+                var desc = student._id + ' ' + student.info.name + '\n'
+                desc += '題目: ' + problem.problem + '\n'
+                lang = ''
+                problem.results
+                    .filter(result => result.result.length > 0)
+                    .sort((a, b) => a.success ? -1 : 1)
+                    .map(result => {
+                        lang += ['', 'C', 'S', 'J', 'P'][result.course]
+                        desc += '--' + ['', 'C', 'C#', 'JAVA', 'Python'][result.course] + '\n'
+                        result.result.map(r => {
+                            desc += r.id + ' : ' + r.content + '\n'
+                        })
+                    })
+                problem.desc = desc
+                problem.lang = lang
+            })
+        })
+        data.students.push(...students)
+    }
+    xhr.send()
+
+    var app = new Vue({
+        el: "#app",
+        data: data
+    })
+
+
+</script>
+
+</html>

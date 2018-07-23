@@ -13,6 +13,7 @@ var path = require('path')
 
 var command = require('./command')
 var rank = require('./rank')
+var server = require('./server')
 
 // var cachePath = path.resolve(__dirname, './bot/cache')
 // if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath)
@@ -47,6 +48,9 @@ program.version('0.8.7')
     .option('init [hwid]', 'create a python file to start coding')
     .option('')
     .option('    --logout', 'see you~')
+    .option('')
+    .option('    --grapper', 'GRAP')
+    .option('    --api', 'COOL')
     .parse(process.argv)
 
 function findHWID(str) {
@@ -78,6 +82,19 @@ async function main(forceResetHw = false, prefix = '') {
         await config.load()
         configLoaded = true
     }
+
+    if (program.grapper) {
+        server({
+            grap: true
+        })
+        return
+    } else if (program.api) {
+        server({
+            useApi: true
+        })
+        return
+    }
+
 
     if (program.rank) {
         await rank()

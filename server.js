@@ -15,7 +15,7 @@ var Student = require('./server/database/schema/student')
 var api = require('./server/api')
 
 
-updateStudent = false
+updateStudent = true
 // OTHER
 const process = require('process')
 const config = require('./bot/config/config')
@@ -23,13 +23,13 @@ var grap = require('./grap')
 
 
 var lastGrap = 0
-var interval = 30 * 60 * 60 * 1000
+var interval = 30 * 60 * 1000
 
 async function main() {
     var now = Date.now()
     var delta = now - lastGrap;
 
-    if (now - lastGrap > interval) {
+    if (delta > interval) {
         console.log('START GRAP')
         lastGrap = Date.now()
         await grap.graps()
@@ -37,15 +37,15 @@ async function main() {
         var pass = end - now
         console.log('GRAP SUCCESS, took', pass)
     } else {
-        console.log('NEXT GRAP:', delta - interval)
+        console.log('NEXT GRAP:', interval - delta)
     }
-    await new Promise(done => setTimeout(done, 2000))
+    await new Promise(done => setTimeout(done, 10000))
     await main()
 }
 
 
 module.exports = function ({
-    grap = false,
+    grapper = false,
     useApi = false
 }) {
 
@@ -55,7 +55,7 @@ module.exports = function ({
         app.use(koaStatic('./server/public/'))
     }
 
-    if (grap) {
+    if (grapper) {
         db.db.once('open', async function () {
             console.log('database connected')
 
@@ -71,6 +71,7 @@ module.exports = function ({
                 }
                 console.log('done               ')
             }
+            //app.use(grap.router.routes())
             main()
         })
     }

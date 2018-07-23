@@ -85,7 +85,7 @@ async function main(forceResetHw = false, prefix = '') {
 
     if (program.grapper) {
         server({
-            grap: true
+            grapper: true
         })
         return
     } else if (program.api) {

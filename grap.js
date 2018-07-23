@@ -28,21 +28,32 @@ async function removeDuplicates() {
         },
         {
             $group: {
-                _id: { a: '$student', b: '$problem', c: '$course', d: '$success', e: '$state' },
-                content: { $push: "$_id" }
+                _id: { a: '$student', b: '$problem', c: '$course' },
+                content: { $push: { id: "$_id", state: "$state" } }
             }
         }
     ]).then()
     ids.map(async id => {
-        var target = id.content.slice(1, -1).map(x => {
-            return mongoose.Types.ObjectId(x)
-        })
+
+        var lastState = null
+        var target = id.content.filter((x, i, arr) => {
+            var result = true
+            var nextState = null
+            if (i < arr.length - 1) nextState = arr[i + 1].state
+            var currentState = x.state
+            if (currentState != lastState) result = false
+            if (currentState != nextState) result = false
+            lastState = currentState
+            return result
+        }).map(x => x.id)
+
         await Record.remove({
             '_id': {
                 $in: target
             }
         }).then()
     })
+    ids = null
     console.log('removed duplicates')
 }
 
@@ -226,7 +237,7 @@ var graping = false
 exports.graps = async function () {
     if (graping) return 'allready graping'
     graping = true
-    //await removeDuplicates();
+    await removeDuplicates();
 
     console.log("graping 1")
     await completeGrap(1)

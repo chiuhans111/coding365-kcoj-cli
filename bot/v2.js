@@ -135,25 +135,32 @@ exports.homework_result = async function (questionID, studentID) {
         jar: j
     }, function (err, res, body) {
         if (err) error(err)
+
         if (body == null) {
             done()
         }
+        try {
 
-        if (body.match('未經過任何測試')) done()
-        var document = (new jsdom.JSDOM(body)).window.document
-        // console.log(body)
-        var content = [...document.querySelectorAll('tr')].slice(1)
-            .map(x => {
-                // console.log(x.textContent)
-                var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
+            if (body.match('未經過任何測試')) done()
+            var document = (new jsdom.JSDOM(body)).window.document
+            // console.log(body)
+            var content = [...document.querySelectorAll('tr')].slice(1)
+                .map(x => {
+                    // console.log(x.textContent)
+                    var result = x.textContent.trim().replace(/[\n\t]+/g, '\t').split('\t')
 
-                output.push({
-                    id: result[0],
-                    timeout: result[1].match('超過時間') != null,
-                    success: result[1].match('通過') != null,
-                    content: result[1]
+                    output.push({
+                        id: result[0],
+                        timeout: result[1].match('超過時間') != null,
+                        success: result[1].match('通過') != null,
+                        content: result[1]
+                    })
                 })
-            })
+
+        } catch (e) {
+            console.log(e)
+            done()
+        }
 
 
         done()

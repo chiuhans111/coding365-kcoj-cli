@@ -25,6 +25,18 @@ var grap = require('./grap')
 var lastGrap = 0
 var interval = 30 * 60 * 1000
 
+function getInterval() {
+    var now = new Date()
+    if (now.getHours() <= 3 || now.getHours() >= 23) return 40 * 60 * 1000
+    if (now.getHours() <= 6) return 60 * 60 * 1000
+    if (now.getHours() < 12) return 30 * 60 * 1000
+    if (now.getHours() < 13) return 60 * 60 * 1000
+    if (now.getHours() <= 18) return 30 * 60 * 1000
+    if (now.getHours() < 20) return 40 * 60 * 1000
+    return 30 * 60 * 1000
+}
+
+
 async function main() {
     var now = Date.now()
     var delta = now - lastGrap;
@@ -32,6 +44,7 @@ async function main() {
     if (delta > interval) {
         console.log('START GRAP')
         lastGrap = Date.now()
+        interval = getInterval()
         await grap.graps()
         var end = Date.now()
         var pass = end - now

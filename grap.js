@@ -6,11 +6,11 @@ var Homework = require('./server/database/schema/homework')
 var Student = require('./server/database/schema/student')
 var Record = require('./server/database/schema/record')
 
-
+var ProgressBar = require('./bot/format/ProgressBar')
 
 var mongoose = require('mongoose')
 
-async function removeDuplicates() {
+async function removeDuplicates(limit = 10000) {
     var ids = await Record.aggregate([
         {
             $addFields: {
@@ -33,41 +33,61 @@ async function removeDuplicates() {
             }
         }
     ]).then()
-    ids.map(async id => {
+
+    console.log('removing duplicates..')
+    var count = 0
+    var targets = []
+    var per = Math.round(ids.length / 100)
+    for (id of ids) {
+        if (count % per == 0)
+            process.stdout.write('  ' + ProgressBar(30, ids.length, count) + '  ' + count + '  \r')
+        count++
 
         var lastState = null
-        var target = id.content.filter((x, i, arr) => {
-            var result = true
-            var nextState = null
-            if (i < arr.length - 1) nextState = arr[i + 1].state
-            var currentState = x.state
-            if (currentState != lastState) result = false
-            if (currentState != nextState) result = false
-            lastState = currentState
-            return result
-        }).map(x => x.id)
 
+        var target = []
+
+        for (var i = 0; i < id.content.length; i++) {
+            var x = id.content[i]
+
+            var nextState = null
+            var currentState = x.state
+            if (i < id.content.length - 1) nextState = id.content[i + 1].state
+            if (currentState != lastState);
+            else if (currentState != nextState);
+            else target.push(x.id)
+
+            lastState = currentState
+        }
+
+        target = target.map(x => mongoose.Types.ObjectId(x))
+        targets.push(...target)
+
+    }
+    if (targets.length > 0)
         await Record.remove({
             '_id': {
-                $in: target
+                $in: targets
             }
         }).then()
-    })
-    ids = null
     console.log('removed duplicates')
 }
 
 async function updateHomeworkList(course) {
     var list = await bot2.homework_list()
-    list.map(homework => {
+    console.log('homework list downloaded size=', list.length)
+    let count = 0
+
+    for (var homework of list) {
         homework.course = course
-        Homework.findOneAndUpdate({
-            id: homework.id,
-            course
-        }, homework, { upsert: true }).catch(err => {
-            console.log(err)
-        })
-    })
+        process.stdout.write('  updating homework... ' + count + '   \r')
+        count++
+        // await Homework.findOneAndUpdate({
+        //     id: homework.id,
+        //     course
+        // }, homework, { upsert: true }).then()
+    }
+
 }
 
 
@@ -75,7 +95,11 @@ function GetHomeworkTask({ successList, homework, student, course, token, detail
     return async function () {
 
         var networked = false
-        let inSuccessList = successList.indexOf(student.id) != -1
+
+        let inSuccessList = false
+
+        if (successList.length > 0)
+            inSuccessList = successList.indexOf(student.id) != -1
 
         let result = []
 
@@ -129,39 +153,48 @@ function GetHomeworkTask({ successList, homework, student, course, token, detail
 
 async function completeGrap(course) {
     await bot2.login({ courseId: course })
+    console.log('start fetching homework list')
 
     await updateHomeworkList(course)
-    console.log('updated homework')
-    var homeworks = await Homework.find({ course }).then()
+    console.log('homework updated.     ')
+    var homeworks = await Homework.find({ course: course }).then()
     // homeworks = homeworks.slice(0, 10)
     console.log('homeworks found')
     var students = await Student.find().then()
     // students = students.slice(0, 10)
 
-    var successLists = []
+    let successLists = []
     var activeStudents = {}
 
     var count = 0
-    var timeoutcounter = 0;
 
     console.log('start preload lists')
-    await Promise.all(homeworks.map(homework => {
-        return async function () {
-            await new Promise(done => setTimeout(done, timeoutcounter += 20))
-            var successList = await bot2.homework_success(homework.id)
-            for (var student of successList) {
-                if (activeStudents[student] == null)
-                    activeStudents[student] = 0
-                activeStudents[student]++
-            }
-            successLists[homework.id] = successList
-            count++
-            process.stdout.write('  preparing:' + count + '\r    ')
+
+    for (var homework of homeworks) {
+        var successList = await bot2.homework_success(homework.id)
+        for (var student of successList) {
+            if (activeStudents[student] == null)
+                activeStudents[student] = 0
+            activeStudents[student]++
         }
-    }).map(x => x()))
+        successLists[homework.id] = successList
+        count++
+        process.stdout.write('  preparing:' + count + '\r    ')
+    }
 
+    // update student list
+    var studentlist = []
+    for (student in activeStudents) {
+        studentlist.push(new Student({ id: student }))
+    }
 
+    await Student.insertMany(studentlist).then(function () {
 
+    }, function () {
+
+    })
+
+    console.log('inserted student id')
 
     var mostActiveStudent = []
     for (var i in activeStudents) {
@@ -178,7 +211,7 @@ async function completeGrap(course) {
     })
 
     var mostActive10 = {}
-    mostActiveStudent.slice(0, 10).map(x => mostActive10[x.student] = x.score)
+    mostActiveStudent.slice(0, 20).map(x => mostActive10[x.student] = x.score)
     console.log('most active:')
     console.log(mostActive10)
 
@@ -210,7 +243,7 @@ async function completeGrap(course) {
             working = []
             var networked = 0
             tasks = tasks.filter(t => {
-                if (working.length >= 4) return true
+                if (working.length >= 8) return true
                 working.push(t)
                 return false
             })
@@ -218,7 +251,7 @@ async function completeGrap(course) {
                 if (await x()) networked++
             }).map(x => x()))
             if (networked > 0)
-                await new Promise(done => setTimeout(done, networked * 100))
+                await new Promise(done => setTimeout(done, networked * 150))
         }
     }
 
@@ -239,14 +272,17 @@ exports.graps = async function () {
     graping = true
     await removeDuplicates();
 
+
+    console.log("graping 4")
+    await completeGrap(4)
+    console.log("graping 3")
+    await completeGrap(3)
     console.log("graping 1")
     await completeGrap(1)
     console.log("graping 2")
     await completeGrap(2)
-    console.log("graping 3")
-    await completeGrap(3)
-    console.log("graping 4")
-    await completeGrap(4)
+
+
 
     await removeDuplicates();
     graping = false

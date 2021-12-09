@@ -164,7 +164,9 @@ exports.homework_result = async function (questionID, studentID) {
 
 
         done()
-    }))
+    })).catch(err => {
+        console.error(err)
+    })
 
     return output
 }

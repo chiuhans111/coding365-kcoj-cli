@@ -1,50 +1,7 @@
-var Router = require('koa-router')
-var router = new Router()
-var Record = require('../database/schema/record')
-var Homework = require('../database/schema/homework')
-var Student = require('../database/schema/student')
-var dbRepair = require('../database/utils/repair')
+var Record = require('../../../database/schema/record')
 
-router.get('/', ctx => {
-    ctx.body = 'welcome'
-})
-
-router.get('/help', ctx => {
-    ctx.body = 'help'
-})
-
-router.get('/all', async (ctx) => {
-    var records = await Record.find().sort('-time').then()
-    ctx.body = JSON.stringify(records)
-})
-
-router.get('/last', async ctx => {
-    var hashtable = {}
-
-    var records = await Record.aggregate([
-        { $sort: { time: -1 } },
-        {
-            $group: {
-                _id: { stu: "$student", cour: "$course", prob: "$problem" },
-                content: { "$first": "$$ROOT" }
-            }
-        },
-        { $replaceRoot: { newRoot: "$content" } },
-        { $project: { _id: 0 } }
-    ])
-
-    ctx.body = JSON.stringify(records)
-})
-
-router.get('/repairIds', async ctx => {
-    ctx.body = await dbRepair.findStrangeIdsDanger()
-})
-
-
-router.get('/rank', async ctx => {
-    var hashtable = {}
-
-    var records = await Record.aggregate([
+exports.rank = async function () {
+    return await Record.aggregate([
         { $sort: { time: -1 } },
         {
             $group: {
@@ -97,8 +54,4 @@ router.get('/rank', async ctx => {
             $sort: { success_count: -1 }
         }
     ])
-    ctx.body = JSON.stringify(records)
-})
-
-
-module.exports = router
+}

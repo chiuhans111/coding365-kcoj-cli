@@ -1,4 +1,4 @@
-var Record = require('../schema/record')
+var Record = require('../../../schema/record')
 var mongoose = require('mongoose')
 
 exports.findStrangeIdsDanger = async function () {

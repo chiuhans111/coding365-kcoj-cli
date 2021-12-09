@@ -29,7 +29,7 @@ async function removeDuplicates(limit = 10000) {
         {
             $group: {
                 _id: { a: '$student', b: '$problem', c: '$course' },
-                content: { $push: { id: "$_id", state: "$state" } }
+                content: { $push: { id: "$_id", state: "$state", success: "$success" } }
             }
         }
     ]).then()
@@ -47,16 +47,16 @@ async function removeDuplicates(limit = 10000) {
 
         var target = []
 
-        for (var i = 0; i < id.content.length; i++) {
-            var x = id.content[i]
+        id.content.map(x => {
+            x.state += ',' + x.success
+        })
 
+        for (var i = 0; i < id.content.length - 1; i++) {
+            var x = id.content[i]
             var nextState = null
             var currentState = x.state
             if (i < id.content.length - 1) nextState = id.content[i + 1].state
-            if (currentState != lastState);
-            else if (currentState != nextState);
-            else target.push(x.id)
-
+            if (currentState == lastState && currentState == nextState) target.push(x.id)
             lastState = currentState
         }
 
